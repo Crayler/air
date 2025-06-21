@@ -38,7 +38,6 @@ df = df.withColumn("id",monotonically_increasing_id())
 #数据去重
 df = df.drop_duplicates()
 
-
 #处理空值
 df = df.na.drop()
 
