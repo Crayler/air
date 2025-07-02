@@ -1,8 +1,52 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.hashers import check_password
+from .models import User
+# from django.views import generic
 def index(request):
     return render(request,'index.html',{})
 
+# class IndexView(generic.ListView):
+#     template_name = 'myApp/test.html'
+
+def air(request):
+    return render(request,'air.html',{})
+    
+
 def login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        # 验证必填字段
+        if not all([username, password]):
+            messages.error(request, '请输入用户名和密码')
+            return render(request, 'login.html')
+        
+        try:
+            # 尝试获取用户
+            user = User.objects.get(username=username)
+            
+            # 验证密码
+            if check_password(password, user.password):
+                # 密码正确，登录用户
+                login(request, user)
+                messages.success(request, f'欢迎回来，{username}！')
+                # 重定向到首页或之前访问的页面
+                return redirect(request.GET.get('next') or 'myApp:index')
+            else:
+                messages.error(request, '密码错误，请重新输入')
+                return render(request, 'login.html')
+                
+        except User.DoesNotExist:
+            messages.error(request, '用户名不存在，请检查后重试')
+            return render(request, 'login.html')
+        except Exception as e:
+            messages.error(request, f'登录失败: {str(e)}')
+            return render(request, 'login.html')
+    
+    # GET请求时显示登录页面
     return render(request,'login.html',{})
 
 
