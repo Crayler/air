@@ -18,28 +18,28 @@ schema = StructType().add("city",StringType(),nullable=True).\
         add("data",StringType(),nullable=True). \
         add("airQuality",StringType(),nullable=True). \
         add("AQI",StringType(),nullable=True). \
-        add("rank",StringType(),nullable=True).\
-        add("PM",StringType(),nullable=True). \
-        add("PM10",StringType(),nullable=True). \
-        add("So2",StringType(),nullable=True). \
-        add("No2",StringType(),nullable=True). \
+        add("rank",IntegerType(),nullable=True).\
+        add("PM",IntegerType(),nullable=True). \
+        add("PM10",IntegerType(),nullable=True). \
+        add("So2",IntegerType(),nullable=True). \
+        add("No2",IntegerType(),nullable=True). \
         add("Co",FloatType(),nullable=True). \
-        add("O3",StringType(),nullable=True)
+        add("O3",IntegerType(),nullable=True)
 
 df = spark.read.format("csv").\
     option("sep",",").\
     option("header","true").\
     option("encoding","utf-8").\
     schema(schema=schema).\
-    load("../spiders/data.csv")
+    load("/root/code/air/sparks/data.csv")
 
 df = df.withColumn("id",monotonically_increasing_id())
 
 #数据去重
-df = df.drop_duplicates()
+# df = df.drop_duplicates()
 
-#处理空值
-df = df.na.drop()
+# #处理空值
+# df = df.na.drop()
 
 # Show the data in the DataFrame
 

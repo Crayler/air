@@ -8,6 +8,7 @@
   - Django 3.2
   - Spark 3.5.6
   - Hadoop 3.4.1
+  - pyspark 3.2.1
 
 ---
 
@@ -45,4 +46,27 @@ python xxx.py
 
 ```bash
 python3 manage.py runserver 0.0.0.0:8000
+```
+
+## 创建数据库
+
+```bash
+python3 manage.py makemigrations polls
+python3 manage.py sqlmigrate polls 0001
+python3 manage.py migrate
+```
+
+## 初试 API
+
+```bash
+python3 manage.py shell
+```
+
+## 创建一个管理员账号
+
+```bash
+python manage.py createsuperuser
+
+crayler
+12345678
 ```

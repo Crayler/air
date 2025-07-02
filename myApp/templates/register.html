@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="zh-CN">
+
+    <head>
+
+        <meta charset="utf-8">
+        <title>注册 | Crayler </title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta content="高级多功能管理后台与仪表盘模板" name="description">
+        <meta content="Themesbrand" name="author">
+        <!-- 应用程序图标 -->
+        
+
+        <!-- 预加载器CSS -->
+        <link rel="stylesheet" href="/static/asserts/css/preloader.min.css" type="text/css">
+
+        <!-- Bootstrap CSS -->
+        <link href="/static/asserts/css/bootstrap.min.css" id="bootstrap-style" rel="stylesheet" type="text/css">
+        <!-- 图标CSS -->
+        <link href="/static/asserts/css/icons.min.css" rel="stylesheet" type="text/css">
+        <!-- 应用CSS -->
+        <link href="/static/asserts/css/app.min.css" id="app-style" rel="stylesheet" type="text/css">
+
+    </head>
+
+    <body>
+
+    <!-- <body data-layout="horizontal"> -->
+        <div class="auth-page">
+            <div class="container-fluid p-0">
+                <div class="row g-0">
+                    <div class="col-xxl-3 col-lg-4 col-md-5">
+                        <div class="auth-full-page-content d-flex p-sm-5 p-4">
+                            <div class="w-100">
+                                <div class="d-flex flex-column h-100">
+                                    <div class="mb-4 mb-md-5 text-center">
+                                        <a href="{% url 'myApp:index' %}" class="d-block auth-logo">
+                                            <img src="/static/asserts/picture/logo-sm.svg" alt="" height="28"> <span class="logo-txt">Crayler</span>
+                                        </a>
+                                    </div>
+                                    <div class="auth-content my-auto">
+                                        <div class="text-center">
+                                            <h5 class="mb-0">注册账号</h5>
+                                            <p class="text-muted mt-2">立即创建您的免费Crayler账号。</p>
+                                        </div>
+                                        <form id="registrationForm" method="post" class="needs-validation mt-4 pt-2" novalidate="" action="{% url 'myApp:index' %}">
+                                             {% csrf_token %}
+                                            <div class="mb-3">
+                                                <label for="useremail" class="form-label">电子邮箱</label>
+                                                <input type="email" class="form-control" name="email" id="useremail" placeholder="输入电子邮箱" required="">  
+                                                <div class="invalid-feedback">
+                                                    请输入有效的电子邮箱
+                                                </div>      
+                                            </div>
+                    
+                                            <div class="mb-3">
+                                                <label for="username" class="form-label">用户名</label>
+                                                <input type="text" name="username" class="form-control" id="username" placeholder="输入用户名" required="">
+                                                <div class="invalid-feedback">
+                                                    请输入用户名
+                                                </div>  
+                                            </div>
+                    
+                                            <div class="mb-3">
+                                                <label for="userpassword" class="form-label">密码</label>
+                                                <input type="password" name="password" class="form-control" id="userpassword" placeholder="输入密码" required="">
+                                                <div class="invalid-feedback">
+                                                    请输入密码
+                                                </div>       
+                                            </div>
+                                            <div class="mb-4">
+                                                <p class="mb-0">注册即表示您同意Crayler的 <a href="#" class="text-primary">使用条款</a></p>
+                                            </div>
+                                            <div class="mb-3">
+                                                <button class="btn btn-primary w-100 waves-effect waves-light" type="button" id="registerBtn">注册</button>
+                                            </div>
+                                        </form>
+
+                                        <div class="mt-4 pt-2 text-center">
+                                            <div class="signin-other-title">
+                                                <h5 class="font-size-14 mb-3 text-muted fw-medium">- 使用以下方式注册 -</h5>
+                                            </div>
+
+                                            <ul class="list-inline mb-0">
+                                                <li class="list-inline-item">
+                                                    <a href="javascript:void()" class="social-list-item bg-primary text-white border-primary">
+                                                        <i class="mdi mdi-facebook"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="list-inline-item">
+                                                    <a href="javascript:void()" class="social-list-item bg-info text-white border-info">
+                                                        <i class="mdi mdi-twitter"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="list-inline-item">
+                                                    <a href="javascript:void()" class="social-list-item bg-danger text-white border-danger">
+                                                        <i class="mdi mdi-google"></i>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="mt-5 text-center">
+                                            <p class="text-muted mb-0">已有账号？<a href="{% url 'myApp:login' %}" class="text-primary fw-semibold"> 登录</a> </p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 mt-md-5 text-center">
+                                        <p class="mb-0">© <script>document.write(new Date().getFullYear())</script> Crayler-Air-Quality <i class="mdi mdi-heart text-danger"></i></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 结束完整注册页面内容 -->
+                    </div>
+                    <!-- 结束列 -->
+                    <div class="col-xxl-9 col-lg-8 col-md-7">
+                        <div class="auth-bg pt-md-5 p-4 d-flex">
+                            <div class="bg-overlay bg-primary"></div>
+                            <ul class="bg-bubbles">
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                                <li></li>
+                            </ul>
+                            <!-- 结束气泡效果 -->
+                            <div class="row justify-content-center align-items-center">
+                                <div class="col-xl-7">
+                                    <div class="p-0 p-sm-4 px-xl-0">
+                                        <div id="reviewcarouselIndicators" class="carousel slide" data-bs-ride="carousel">
+                                            <div class="carousel-indicators carousel-indicators-rounded justify-content-start ms-0 mb-0">
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="幻灯片1"></button>
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="1" aria-label="幻灯片2"></button>
+                                                <button type="button" data-bs-target="#reviewcarouselIndicators" data-bs-slide-to="2" aria-label="幻灯片3"></button>
+                                            </div>
+                                            <!-- 结束轮播指示器 -->
+                                            <div class="carousel-inner">
+                                                <div class="carousel-item active">
+                                                    <div class="testi-contain text-white">
+                                                        <i class="bx bxs-quote-alt-left text-success display-6"></i>
+
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“当城市被雾霾笼罩时，我开始用代码搭建空气质量可视化平台。每一行数据都在诉说：改变呼吸环境，比追逐任何设计潮流都更有价值——这正是我们突破技术边界的意义。”</h4>
+                                                        <div class="mt-4 pt-3 pb-5">
+                                                            <div class="d-flex align-items-start">
+                                                                <div class="flex-shrink-0">
+                                                                    <img src="/static/asserts/picture/avatar-1.jpg" class="avatar-md img-fluid rounded-circle" alt="...">
+                                                                </div>
+                                                                <div class="flex-grow-1 ms-3 mb-4">
+                                                                    <h5 class="font-size-18 text-white">Crayler
+                                                                    </h5>
+                                                                    <p class="mb-0 text-white-50">author</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="carousel-item">
+                                                    <div class="testi-contain text-white">
+                                                        <i class="bx bxs-quote-alt-left text-success display-6"></i>
+
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“记得某个雾霾天，妹妹问我‘为什么天空是灰色的’——从那天起，我学会用政策杠杆撬动空气治理。数据会过时，方案会迭代，但孩子对蓝天的期待，永远是我们行动的指南针。”</h4>
+                                                        <div class="mt-4 pt-3 pb-5">
+                                                            <div class="d-flex align-items-start">
+                                                                <div class="flex-shrink-0">
+                                                                    <img src="/static/asserts/picture/avatar-2.jpg" class="avatar-md img-fluid rounded-circle" alt="...">
+                                                                </div>
+                                                                <div class="flex-grow-1 ms-3 mb-4">
+                                                                    <h5 class="font-size-18 text-white">Crayler
+                                                                    </h5>
+                                                                    <p class="mb-0 text-white-50">author</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="carousel-item">
+                                                    <div class="testi-contain text-white">
+                                                        <i class="bx bxs-quote-alt-left text-success display-6"></i>
+
+                                                        <h4 class="mt-4 fw-medium lh-base text-white">“我们用传感器网络编织城市呼吸的脉络：每棵行道树都是天然净化器，每次代码迭代都是对PM2.5的宣战。当数据与自然共生，才是真正解放人类免受空气污染的枷锁。”</h4>
+                                                        <div class="mt-4 pt-3 pb-5">
+                                                            <div class="d-flex align-items-start">
+                                                                <img src="/static/asserts/picture/avatar-3.jpg" class="avatar-md img-fluid rounded-circle" alt="...">
+                                                                <div class="flex-1 ms-3 mb-4">
+                                                                    <h5 class="font-size-18 text-white">Crayler</h5>
+                                                                    <p class="mb-0 text-white-50">author
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- 结束轮播内容 -->
+                                        </div>
+                                        <!-- 结束评价轮播 -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 结束列 -->
+                </div>
+                <!-- 结束行 -->
+            </div>
+            <!-- 结束容器流体 -->
+        </div>
+
+
+        <!-- JavaScript -->
+        <script src="/static/asserts/js/jquery.min.js"></script>
+        <script src="/static/asserts/js/bootstrap.bundle.min.js"></script>
+        <script src="/static/asserts/js/metisMenu.min.js"></script>
+        <script src="/static/asserts/js/simplebar.min.js"></script>
+        <script src="/static/asserts/js/waves.min.js"></script>
+        <script src="/static/asserts/js/feather.min.js"></script>
+        <!-- pace.js -->
+        <script src="/static/asserts/js/pace.min.js"></script>
+
+        <!-- 验证初始化 -->
+        <script src="/static/asserts/js/validation.init.js"></script>
+
+        <script>
+            // 页面加载完成后执行
+            $(document).ready(function() {
+                // 获取注册按钮和表单引用
+                const registerBtn = $('#registerBtn');
+                const registrationForm = $('#registrationForm');
+                
+                // 注册按钮点击事件
+                registerBtn.click(function() {
+                    // 手动触发表单验证
+                    if (registrationForm[0].checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        // 显示注册成功提示
+                        showRegistrationSuccess();
+                    }
+                    
+                    // 添加表单验证样式
+                    registrationForm.addClass('was-validated');
+                });
+                
+                // // 显示注册成功提示并跳转
+                // function showRegistrationSuccess() {
+                //     // 使用Bootstrap模态框显示成功信息（更美观的提示）
+                //     const modal = `
+                //         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                //             <div class="modal-dialog modal-dialog-centered">
+                //                 <div class="modal-content">
+                //                     <div class="modal-body text-center p-5">
+                //                         <div class="mb-4">
+                //                             <i class="mdi mdi-check-circle text-success display-1"></i>
+                //                         </div>
+                //                         <h4 class="mb-2">注册成功！</h4>
+                //                         <p class="text-muted mb-5">您的账号已创建，即将跳转至登录页面</p>
+                //                         <button id="closeModal" class="btn btn-primary">确定</button>
+                //                     </div>
+                //                 </div>
+                //             </div>
+                //         </div>
+                //     `;
+                    
+                //     // 将模态框插入到页面中
+                //     $('body').append(modal);
+                    
+                //     // 显示模态框
+                //     $('#successModal').modal('show');
+                    
+                //     // 模态框关闭或确定按钮点击时跳转
+                //     $('#closeModal, #successModal').on('click', function() {
+                //         $('#successModal').modal('hide');
+                //         // 跳转至登录页面（这里使用示例URL，实际应替换为您的登录页面URL）
+                //         setTimeout(function() {
+                //             window.location.href = "{% url 'myApp:login' %}";
+                //         }, 300); // 300毫秒延迟，确保模态框动画完成
+                //     });
+                // }
+            });
+        </script>
+
+    </body>
+
+</html>
