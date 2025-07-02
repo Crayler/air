@@ -2,8 +2,9 @@ from django.contrib import admin
 from django.urls import path,include
 
 from . import views
+app_name="myApp"
 urlpatterns = [
-    path('index/', views.index,name= 'index'),
+    path('index/', views.IndexView.as_view(),name= 'index'),
     path('login/', views.login,name= 'login'),
     path('logout/', views.logout,name= 'logout'),
     path('register/', views.register,name= 'register'),
@@ -14,5 +15,5 @@ urlpatterns = [
     path('monthly/', views.monthly,name= 'monthly'),
     path('year/', views.year,name= 'year'),
     path('air/', views.air,name= 'air'),
-    
+   
 ]

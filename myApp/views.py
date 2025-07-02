@@ -3,12 +3,13 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.hashers import check_password
 from .models import User
-# from django.views import generic
-def index(request):
-    return render(request,'index.html',{})
+from django.views import generic
 
-# class IndexView(generic.ListView):
-#     template_name = 'myApp/test.html'
+class IndexView(generic.ListView):
+    template_name = 'index.html'
+
+    def get_queryset(self):
+        return None
 
 def air(request):
     return render(request,'air.html',{})
@@ -62,6 +63,8 @@ def register(request):
         email = request.POST.get('email')
         username = request.POST.get('username')
         password = request.POST.get('password')
+        print(f"e:{email},u:{username},p:{password}")
+        print("xxx")
         
         # 简单验证数据完整性
         if not all([email, username, password]):

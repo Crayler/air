@@ -1,9 +1,10 @@
+{% extends 'common/base.html' %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>空气质量预测</title>
+{% block base %}
+{% load static %}
+
+<body>
+    <script type="text/javascript" src="https://assets.pyecharts.org/assets/v5/echarts.min.js"></script>
     <style>
         #citySelector {
             margin: 20px;
@@ -11,16 +12,12 @@
             font-size: 16px;
         }
     </style>
-    <script type="text/javascript" src="https://assets.pyecharts.org/assets/v5/echarts.min.js"></script>
 
-</head>
-<body>
     <select id="citySelector">
         <option value="">--请选择城市--</option>
         <option value="上海">上海</option><option value="北京">北京</option><option value="广州">广州</option><option value="成都">成都</option><option value="杭州">杭州</option><option value="武汉">武汉</option><option value="深圳">深圳</option><option value="苏州">苏州</option><option value="重庆">重庆</option>
     </select>
 
-<body >
     <div class="box">
     <div id="chart_上海" class="chart-container" style="width:900px; height:500px; "></div>
     <script>
@@ -7537,4 +7534,4 @@
         });
     </script>
 </body>
-</html>
+{% endblock %}
