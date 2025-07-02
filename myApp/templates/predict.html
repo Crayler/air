@@ -8,6 +8,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta content="Premium Multipurpose Admin & Dashboard Template" name="description">
         <meta content="Themesbrand" name="author">
+        <script src="https://assets.pyecharts.org/assets/v5/echarts.min.js"></script>
+
         <!-- App favicon -->
         
 
@@ -192,7 +194,18 @@
         <!-- 左侧边栏结束 -->
 
         <!-- 右边页面设置 -->
+        <div class="main-content">
+            <div class="page-content">
+                <div class="container-fluid">
+                   <h6 class="mt-4 mb-3 pt-2">空气质量折线图</h6>
+                    <!-- <div id="chart-airquality" style="width: 100%; height: 400px;"></div> -->
         
+
+    
+                
+                </div>
+            </div>
+        </div>
 
         <!-- 右边设置 -->
         <!-- Right Sidebar -->
@@ -335,6 +348,18 @@
         <script src="/static/asserts/js/dashboard.init.js"></script>
 
         <script src="/static/asserts/js/app.js"></script>
+        <script>
+            var chartDom = document.getElementById('chart-airquality');
+            var myChart = echarts.init(chartDom);
+            var option = {
+                /* 👉👉 这里粘贴 air.html 中 var option_714a... 的整个内容 👈👈 */
+                /* 例如:
+                "animation": true,
+                ...
+                */
+            };
+            myChart.setOption(option);
+        </script>
 
     	
 </body>

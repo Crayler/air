@@ -13,5 +13,6 @@ urlpatterns = [
     path('dist/', views.dist,name= 'dist'),
     path('monthly/', views.monthly,name= 'monthly'),
     path('year/', views.year,name= 'year'),
+    path('air/', views.air,name= 'air'),
     
 ]

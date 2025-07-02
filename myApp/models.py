@@ -3,12 +3,13 @@ from django.utils import timezone
 # Create your models here.
 #
 class User(models.Model):
-    username = models.CharField(max_length=50, unique=True)
+    id = models.AutoField("id",primary_key=True)
+    username = models.CharField("用户名",max_length=255,default='')
+    password = models.CharField("密码",max_length=255,default='')
+    creteTime = models.DateField("创建时间",auto_now_add=True)
     email = models.EmailField(max_length=100, unique=True)
-    password = models.CharField(max_length=128)
-    register_time = models.DateTimeField(default=timezone.now)
-    is_active = models.BooleanField(default=True)
-
+    
     class Meta:
         db_table = 'user'
         
+

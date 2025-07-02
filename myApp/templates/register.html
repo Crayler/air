@@ -249,41 +249,41 @@
                     registrationForm.addClass('was-validated');
                 });
                 
-                // // 显示注册成功提示并跳转
-                // function showRegistrationSuccess() {
-                //     // 使用Bootstrap模态框显示成功信息（更美观的提示）
-                //     const modal = `
-                //         <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-                //             <div class="modal-dialog modal-dialog-centered">
-                //                 <div class="modal-content">
-                //                     <div class="modal-body text-center p-5">
-                //                         <div class="mb-4">
-                //                             <i class="mdi mdi-check-circle text-success display-1"></i>
-                //                         </div>
-                //                         <h4 class="mb-2">注册成功！</h4>
-                //                         <p class="text-muted mb-5">您的账号已创建，即将跳转至登录页面</p>
-                //                         <button id="closeModal" class="btn btn-primary">确定</button>
-                //                     </div>
-                //                 </div>
-                //             </div>
-                //         </div>
-                //     `;
+                // 显示注册成功提示并跳转
+                function showRegistrationSuccess() {
+                    // 使用Bootstrap模态框显示成功信息（更美观的提示）
+                    const modal = `
+                        <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-body text-center p-5">
+                                        <div class="mb-4">
+                                            <i class="mdi mdi-check-circle text-success display-1"></i>
+                                        </div>
+                                        <h4 class="mb-2">注册成功！</h4>
+                                        <p class="text-muted mb-5">您的账号已创建，即将跳转至登录页面</p>
+                                        <button id="closeModal" class="btn btn-primary">确定</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
                     
-                //     // 将模态框插入到页面中
-                //     $('body').append(modal);
+                    // 将模态框插入到页面中
+                    $('body').append(modal);
                     
-                //     // 显示模态框
-                //     $('#successModal').modal('show');
+                    // 显示模态框
+                    $('#successModal').modal('show');
                     
-                //     // 模态框关闭或确定按钮点击时跳转
-                //     $('#closeModal, #successModal').on('click', function() {
-                //         $('#successModal').modal('hide');
-                //         // 跳转至登录页面（这里使用示例URL，实际应替换为您的登录页面URL）
-                //         setTimeout(function() {
-                //             window.location.href = "{% url 'myApp:login' %}";
-                //         }, 300); // 300毫秒延迟，确保模态框动画完成
-                //     });
-                // }
+                    // 模态框关闭或确定按钮点击时跳转
+                    $('#closeModal, #successModal').on('click', function() {
+                        $('#successModal').modal('hide');
+                        // 跳转至登录页面（这里使用示例URL，实际应替换为您的登录页面URL）
+                        setTimeout(function() {
+                            window.location.href = "{% url 'myApp:login' %}";
+                        }, 300); // 300毫秒延迟，确保模态框动画完成
+                    });
+                }
             });
         </script>
 

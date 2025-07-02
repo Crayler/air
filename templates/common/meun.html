@@ -1,0 +1,73 @@
+        <div class="vertical-menu">
+
+            <div data-simplebar="" class="h-100">
+
+                <!--- 侧边菜单 -->
+                <div id="sidebar-menu">
+                    <!-- 左侧菜单开始 -->
+                    <ul class="metismenu list-unstyled" id="side-menu">
+                        <li class="menu-title" data-key="t-menu">菜单</li>
+
+                        <li>
+                            <a href="{% url 'myApp:index' %}">
+                                <i data-feather="home"></i>
+                                <span data-key="t-dashboard">首页</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow">
+                                <i data-feather="grid"></i>
+                                <span data-key="t-apps">数据可视化</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">                                                
+                                <li>
+                                    <li><a href="{% url 'myApp:rank' %}" data-key="t-inbox">城市空气质量排行</a></li>
+                                    <li><a href="{% url 'myApp:dist' %}" data-key="t-read-email">空气质量等级城市分布</a></li>
+                                    <li><a href="{% url 'myApp:monthly' %}" data-key="t-invoice-detail">季节性空气质量变化规律</a></li>
+                                    <li><a href="{% url 'myApp:year' %}" data-key="t-invoice-detail">年度污染分析</a></li>
+                                </li>
+                            </ul>
+                            
+                        </li>
+                        <li>
+                            <a href="{% url 'myApp:realtime' %}">
+                                <i data-feather="grid"></i>
+                                <span data-key="t-apps">实时监控</span>
+                            </a>
+                        
+                        </li>
+
+                        <li>
+                            <a href="{% url 'myApp:predict' %}">
+                                <i data-feather="file-text"></i>
+                                <span data-key="t-pages">空气质量预测</span>
+                            </a>
+                        
+                        </li>
+                        <li>
+                            <a href="javascript: void(0);" class="has-arrow">
+                                <i data-feather="users"></i>
+                                <span data-key="t-authentication">个人信息</span>
+                            </a>
+                            <ul class="sub-menu" aria-expanded="false">
+                                <li><a href="{% url 'myApp:login' %}" data-key="t-login">登录</a></li>
+                                <li><a href="{% url 'myApp:register' %}" data-key="t-register">注册</a></li>                  
+                                <li><a href="{% url 'myApp:logout' %}" data-key="t-logout">退出登录</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <div class="card sidebar-alert border-0 text-center mx-4 mb-0 mt-5">
+                        <div class="card-body">
+                            <img src="/static/asserts/picture/giftbox.png" alt="">
+                            <div class="mt-4">
+                                <h5 class="alertcard-title font-size-16">无限访问</h5>
+                                <p class="font-size-13">从免费试用升级您的计划，选择“商业计划”。</p>
+                                <a href="#!" class="btn btn-primary mt-2">立即升级</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 侧边栏 -->
+            </div>
+        </div>
