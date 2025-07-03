@@ -2,5 +2,42 @@
 
 {% block base %}
 {% load static %}
-天鹅三天
+
+<h1 style="text-align: center; margin: 20px 0;">城市空气质量排行榜（{{ latest_date }}）</h1>
+
+<table style="width: 80%; margin: 0 auto; border-collapse: collapse; text-align: center;">
+    <thead>
+        <tr style="background-color: #f2f2f2;">
+            <th style="border: 1px solid #ddd; padding: 8px;">排名</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">城市</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">日期</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">上一排名</th>
+            <th style="border: 1px solid #ddd; padding: 8px;">排名变化</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in rankings %}
+        <tr>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.rank }}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.city }}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.date }}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.prev_rank }}</td>
+            <td style="border: 1px solid #ddd; padding: 8px;">
+                {% if item.rank_change > 0 %}
+                    <span style="color: green;">↑ {{ item.rank_change }}</span>
+                {% elif item.rank_change < 0 %}
+                    <span style="color: red;">↓ {{ item.rank_change }}</span>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" style="border: 1px solid #ddd; padding: 8px;">暂无数据</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 {% endblock %}

@@ -127,3 +127,12 @@ def monthly(request):
 
 def year(request):
     return render(request,'year.html',{})
+
+
+from .models import AirQuality
+
+def rank(request):
+    # 从数据库取最近一天的数据，并按 rank 排序
+    latest_date = AirQuality.objects.latest('date').date
+    rankings = AirQuality.objects.filter(date=latest_date).order_by('rank')
+    return render(request, 'rank.html', {'rankings': rankings, 'latest_date': latest_date})
