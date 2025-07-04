@@ -1,0 +1,319 @@
+{% extends 'common/base.html' %}
+
+{% block base %}
+{% load static %}
+<title>空气质量数据分析</title>
+    <!-- 引入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 引入 Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 引入 ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS 配置 -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#10B981',
+                        accent: '#8B5CF6',
+                        neutral: '#6B7280',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .chart-container {
+                height: 400px;
+            }
+        }
+    </style>
+
+<body class="bg-gray-50 font-sans">
+
+    <!-- 主内容区 -->
+    <main class="max-w-7xl mx-auto py-1 sm:px-6 lg:px-8">
+        <div class="px-4 py-6 sm:px-0">
+            <h1 class="text-3xl font-bold text-gray-900 mb-6">O3与CO污染物分类统计</h1>
+            
+            <!-- 数据概览卡片 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-blue-100 p-3 rounded-full">
+                            <i class="fa fa-cloud text-primary text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">O3 分类总数</h3>
+                            <div class="flex items-baseline">
+                                <p class="text-2xl font-semibold text-gray-900" id="total-o3-count">0</p>
+                                <p class="ml-2 text-sm text-green-600">
+                                    <i class="fa fa-arrow-up"></i> 12%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 card-shadow hover:shadow-lg transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0 bg-green-100 p-3 rounded-full">
+                            <i class="fa fa-fire text-secondary text-xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-sm font-medium text-gray-500">CO 分类总数</h3>
+                            <div class="flex items-baseline">
+                                <p class="text-2xl font-semibold text-gray-900" id="total-co-count">0</p>
+                                <p class="ml-2 text-sm text-red-600">
+                                    <i class="fa fa-arrow-down"></i> 3%
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 图表区域 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- O3分类饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="chart-container" id="o3-chart"></div>
+                </div>
+                
+                <!-- CO分类饼图 -->
+                <div class="bg-white rounded-xl p-6 card-shadow">
+                    <div class="chart-container" id="co-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 数据表格 -->
+            <div class="bg-white rounded-xl p-6 card-shadow mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">详细数据</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- O3数据表格 -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-3">O3 分类数据</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">占比</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="o3-table-body">
+                                    <!-- JavaScript 将动态填充此区域 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- CO数据表格 -->
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-700 mb-3">CO 分类数据</h3>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr>
+                                        <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">分类</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">数量</th>
+                                        <th class="px-6 py-3 bg-gray-50 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">占比</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200" id="co-table-body">
+                                    <!-- JavaScript 将动态填充此区域 -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <p class="text-gray-400">&copy; 2025 空气质量数据分析平台. Crayler保留所有权利.</p>
+                </div>
+                <div class="flex space-x-6">
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-github text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                    <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                        <i class="fa fa-linkedin text-xl"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 数据初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从Django模板获取数据
+            const o3Categories = {{ o3_categories|safe }};
+            const o3Counts = {{ o3_counts|safe }};
+            const coCategories = {{ co_categories|safe }};
+            const coCounts = {{ co_counts|safe }};
+            
+            // 计算总数
+            const totalO3 = o3Counts.reduce((sum, count) => sum + count, 0);
+            const totalCO = coCounts.reduce((sum, count) => sum + count, 0);
+            
+            // 更新总数显示
+            document.getElementById('total-o3-count').textContent = totalO3;
+            document.getElementById('total-co-count').textContent = totalCO;
+            
+            // 初始化O3图表
+            const o3Chart = echarts.init(document.getElementById('o3-chart'));
+            const o3Option = {
+                title: {
+                    text: 'O3 分类分布',
+                    left: '52%'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    top:'5%',
+                    left: 'left',
+                    data: o3Categories
+                },
+                series: [
+                    {
+                        name: 'O3分类',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['70%', '60%'],
+                        data: o3Categories.map((category, index) => ({
+                            value: o3Counts[index],
+                            name: category
+                        })),
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            o3Chart.setOption(o3Option);
+            
+            // 初始化CO图表
+            const coChart = echarts.init(document.getElementById('co-chart'));
+            const coOption = {
+                title: {
+                    text: 'CO 分类分布',
+                    left: '52%'
+                },
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)'
+                },
+                legend: {
+                    orient: 'vertical',
+                    top:'5%',
+                    left: 'left',
+                    data: coCategories
+                },
+                series: [
+                    {
+                        name: 'CO分类',
+                        type: 'pie',
+                        radius: '55%',
+                        center: ['70%', '60%'],
+                        data: coCategories.map((category, index) => ({
+                            value: coCounts[index],
+                            name: category
+                        })),
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        }
+                    }
+                ]
+            };
+            coChart.setOption(coOption);
+            
+            // 填充O3表格
+            const o3TableBody = document.getElementById('o3-table-body');
+            o3Categories.forEach((category, index) => {
+                const percentage = ((o3Counts[index] / totalO3) * 100).toFixed(1);
+                o3TableBody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-2.5 w-2.5 rounded-full bg-blue-500 mr-2"></div>
+                                ${category}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                            ${o3Counts[index]}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            ${percentage}%
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // 填充CO表格
+            const coTableBody = document.getElementById('co-table-body');
+            coCategories.forEach((category, index) => {
+                const percentage = ((coCounts[index] / totalCO) * 100).toFixed(1);
+                coTableBody.innerHTML += `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
+                                ${category}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium text-gray-900">
+                            ${coCounts[index]}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-500">
+                            ${percentage}%
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            // 响应窗口大小变化，调整图表
+            window.addEventListener('resize', function() {
+                o3Chart.resize();
+                coChart.resize();
+            });
+        });
+    </script>
+
+{% endblock %}

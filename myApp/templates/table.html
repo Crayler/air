@@ -1,0 +1,181 @@
+{% extends 'common/base.html' %}
+
+{% block base %}
+{% load static %}
+<title>空气质量数据表格</title>
+<style>
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin: 20px;
+    }
+    
+    .card-header {
+        background-color: #f8f9fa;
+        padding: 15px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .card-title {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
+    
+    .card-body {
+        padding: 20px;
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th, .data-table td {
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        text-align: center;
+    }
+    
+    .data-table th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+    }
+    
+    .data-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    .data-table tr:hover {
+        background-color: #f5f5f5;
+    }
+    
+    /* 空气质量等级颜色映射 */
+    .quality-excellent { background-color: #14bd14; } /* 优 */
+    .quality-good { background-color: #20e78787; color: #333 !important; } /* 良 */
+    .quality-light { background-color: #ad7032; } /* 轻度污染 */
+    .quality-moderate { background-color: #be4e4e; } /* 中度污染 */
+    .quality-heavy { background-color: #99004c; } /* 重度污染 */
+    .quality-severe { background-color: #5385eb; } /* 严重污染 */
+    
+    .aqi-badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        color: white;
+        font-weight: bold;
+        display: inline-block;
+        min-width: 60px;
+    }
+    
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .pagination li {
+        margin: 0 5px;
+    }
+    
+    .pagination a {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-decoration: none;
+        color: #333;
+    }
+    
+    .pagination a:hover {
+        background-color: #f5f5f5;
+    }
+    
+    .pagination .current {
+        padding: 8px 12px;
+        background-color: #4CAF50;
+        color: white;
+        border-radius: 4px;
+    }
+</style>
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">全国主要城市空气质量数据</h3>
+            <div>
+                <span class="text-muted">当前显示: {{ data_list.start_index }}-{{ data_list.end_index }} / {{ data_list.paginator.count }} 条数据</span>
+            </div>
+        </div>
+        <div class="card-body">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>城市</th>
+                        <th>日期</th>
+                        <th>质量等级</th>
+                        <th>AQI</th>
+                        <th>当日排名</th>
+                        <th>PM2.5</th>
+                        <th>PM10</th>
+                        <th>SO₂</th>
+                        <th>NO₂</th>
+                        <th>CO</th>
+                        <th>O₃</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in data_list %}
+                    <tr>
+                        <td>{{ forloop.counter0 }}</td>
+                        <td>{{ data.city }}</td>
+                        <td>{{ data.date }}</td>
+                        <td>
+                            <!-- 根据airQuality字段动态分配颜色类 -->
+                            <span class="aqi-badge {% if data.airQuality == '优' %}quality-excellent{% elif data.airQuality == '良' %}quality-good{% elif data.airQuality == '轻度污染' %}quality-light{% elif data.airQuality == '中度污染' %}quality-moderate{% elif data.airQuality == '重度污染' %}quality-heavy{% else %}quality-severe{% endif %}">
+                                {{ data.airQuality }}
+                            </span>
+                        </td>
+                        <td>{{ data.AQI }}</td>
+                        <td>{{ data.rank }}</td>
+                        <td>{{ data.PM }}</td>
+                        <td>{{ data.PM10 }}</td>
+                        <td>{{ data.So2 }}</td>
+                        <td>{{ data.No2 }}</td>
+                        <td>{{ data.Co }}</td>
+                        <td>{{ data.O3 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-footer">
+            <div class="pagination">
+                {% if data_list.has_previous %}
+                    <li><a href="?page=1">&laquo; 首页</a></li>
+                    <li><a href="?page={{ data_list.previous_page_number }}">上一页</a></li>
+                {% endif %}
+                
+                {% for num in data_list.paginator.page_range %}
+                    {% if data_list.number == num %}
+                        <li><span class="current">{{ num }}</span></li>
+                    {% elif num > data_list.number|add:'-3' and num < data_list.number|add:'3' %}
+                        <li><a href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if data_list.has_next %}
+                    <li><a href="?page={{ data_list.next_page_number }}">下一页</a></li>
+                    <li><a href="?page={{ data_list.paginator.num_pages }}">尾页 &raquo;</a></li>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}

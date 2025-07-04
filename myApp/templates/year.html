@@ -1,6 +1,129 @@
 {% extends 'common/base.html' %}
+{% load static %}
 
 {% block base %}
-{% load static %}
-天
+<style>
+    .card {
+        max-width: 980px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 5px;    /* 两个卡片顶部间距 */
+        margin-bottom: 10px; /* 两个卡片底部间距 */
+        padding: 20px 30px;
+        background-color: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+
+    .card h2 {
+        text-align: center;
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #333;
+    }
+    .card form {
+        text-align: left;
+        margin-bottom: 0;
+    }
+    .card select, .card button {
+        font-size: 16px;
+        padding: 6px 12px;
+        margin: 0 6px;
+        border-radius: 6px;
+        border: 1px solid #ccc;
+    }
+    .card button {
+        cursor: pointer;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        transition: background-color 0.3s ease;
+    }
+    .card button:hover {
+        background-color: #0056b3;
+    }
+     /* 城市选择框单独加宽 */
+    .card select {
+        width: 220px;  /* 调整宽度 */
+    }
+    #chart {
+        width: 850px;  /* 增宽 */
+        height: 400px;
+        margin: 0 auto;
+    }
+</style>
+
+
+<!-- 标题+选择器卡片 -->
+<div class="card">
+    <h2>{{ selected_city }} AQI Max值分析</h2>
+    <form method="get">
+        <select name="year">
+            <option value="2025" selected>2025</option>
+        </select>
+
+        <select name="city">
+            <option value="北京" {% if selected_city == "北京" %}selected{% endif %}>北京</option>
+            <option value="上海" {% if selected_city == "上海" %}selected{% endif %}>上海</option>
+            <option value="广州" {% if selected_city == "广州" %}selected{% endif %}>广州</option>
+            <option value="深圳" {% if selected_city == "深圳" %}selected{% endif %}>深圳</option>
+            <option value="成都" {% if selected_city == "成都" %}selected{% endif %}>成都</option>
+            <option value="武汉" {% if selected_city == "武汉" %}selected{% endif %}>武汉</option>
+            <option value="杭州" {% if selected_city == "杭州" %}selected{% endif %}>杭州</option>
+            <option value="重庆" {% if selected_city == "重庆" %}selected{% endif %}>重庆</option>
+            <option value="苏州" {% if selected_city == "苏州" %}selected{% endif %}>苏州</option>
+        </select>
+
+        <button type="submit">查看</button>
+    </form>
+</div>
+
+<!-- 图表卡片 -->
+<div class="card">
+    <div id="chart"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<script>
+    var chartDom = document.getElementById('chart');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    option = {
+        title: {
+            text: '双折线图'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ['Max PM', 'Min PM10']
+        },
+        xAxis: {
+            type: 'category',
+            data: {{ months|safe }}
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'Max PM',
+                type: 'line',
+                data: {{ max_PM|safe }},
+                smooth: true,
+                symbol: 'square'
+            },
+            {
+                name: 'Min PM10',
+                type: 'line',
+                data: {{ min_PM10|safe }},
+                smooth: true,
+                symbol: 'diamond'
+            }
+        ]
+    };
+
+    myChart.setOption(option);
+</script>
 {% endblock %}

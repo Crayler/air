@@ -14,9 +14,9 @@ class AqiSpider:
         self.f = open(f'data.csv','a',encoding='utf-8-sig',newline='')
         self.write = csv.DictWriter(self.f,fieldnames=[
             'city',
-            'data',
-            'airQuality',
+            'date',
             'AQI',
+            'airQuality',
             'rank',
             'PM2.5',
             'PM10',
@@ -58,7 +58,7 @@ class AqiSpider:
             O3 = td [9].get_text().strip()
             data_dict = {
                 'city':self.realname,
-                'data':Date,
+                'date':Date,
                 'airQuality':Quality_leval,
                 'AQI':AQI,
                 'rank':AQI_rank,
@@ -70,13 +70,13 @@ class AqiSpider:
                 'O3':O3,
             }
 
-            print(data_dict)
+            # print(data_dict)
             self.save_data(data_dict)
             #break
 
     def save_data(self,data_dict):
         #存储
-        print('存入')
+        # print('存入')
         self.write.writerow(data_dict)
 
 
@@ -84,8 +84,8 @@ class AqiSpider:
 
     def run(self):
         for month in range(1,13):
-            print(f"正在爬取{2024}年{month}月的数据")
-            self.send_requests(2024,month)
+            print(f"正在爬取{2025}年{month}月的数据")
+            self.send_requests(2025,month)
 
 if __name__ == '__main__':
     cityList = ['beijing', 'shanghai', 'guangzhou', 'shenzhen', 'chengdu', 'wuhan', 'hangzhou', 'chongqing', 'suzhou']

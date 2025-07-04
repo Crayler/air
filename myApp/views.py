@@ -13,6 +13,36 @@ class IndexView(generic.ListView):
 
 def air(request):
     return render(request,'air.html',{})
+
+from .models import O3Category, CoCategory
+def gas(request):
+    """处理空气质量数据并渲染图表"""
+    # 获取O3分类数据
+    o3_data = O3Category.objects.all()
+    o3_categories = [item.O3_category for item in o3_data]
+    o3_counts = [item.O3_count for item in o3_data]
+    
+    # 获取CO分类数据
+    co_data = CoCategory.objects.all()
+    co_categories = [item.Co_category for item in co_data]
+    co_counts = [item.Co_count for item in co_data]
+    
+    return render(request, 'gas.html', {
+        'o3_categories': o3_categories,
+        'o3_counts': o3_counts,
+        'co_categories': co_categories,
+        'co_counts': co_counts,
+    })  
+
+from .models import TableData
+from django.core.paginator import Paginator
+def table(request):
+    data_list = TableData.objects.all().order_by('id')  # 按ID排序确保结果稳定
+    paginator = Paginator(data_list, 20)  # 每页显示20条数据
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'table.html', {'data_list': page_obj})
+
     
 
 def login(request):
@@ -117,16 +147,91 @@ def rank(request):
     return render(request,'rank.html',{})
 
 
+
+
+import json
+from django.shortcuts import render
+from django.db.models import F
+from .models import dituAirQuality
 def dist(request):
-    return render(request,'dist.html',{})
+    year = 2025
+    month = int(request.GET.get('month', 1))
+    
+    # 验证月份是否有效
+    if month not in range(1, 13):
+        month = 1
+    
+    try:
+        # 使用数据库函数计算平均AQI
+        data_qs = dituAirQuality.objects.filter(year=year, month=month).annotate(
+            avg_aqi=(F('max_AQI') + F('min_AQI')) / 2
+        ).order_by('city')
+
+        cities = [item.city for item in data_qs]
+        avg_aqis = [item.avg_aqi for item in data_qs]
+
+        # 当没有数据时显示默认值
+        if not cities:
+            cities = ["北京", "上海", "广州", "深圳", "成都", "杭州", "武汉", "西安", "南京"]
+            avg_aqis = [120, 80, 90, 75, 100, 70, 95, 110, 85]
+            no_data = True
+        else:
+            no_data = False
+
+    except Exception as e:
+        # 错误处理
+        print(f"Error fetching AQI data: {e}")
+        cities = ["北京", "上海", "广州"]
+        avg_aqis = [100, 100, 100]
+        no_data = True
+
+    months = list(range(1, 13))
+
+    print('DEBUG cities:', cities)
+    print('DEBUG avg_aqis:', avg_aqis)
+
+    context = {
+        'year': year,
+        'month': month,
+        'cities': json.dumps(cities, ensure_ascii=False),
+        'avg_aqis': json.dumps(avg_aqis, ensure_ascii=False),
+        'months': months,
+        'no_data': no_data,
+    }
+
+    return render(request, 'dist.html', context)
+
+
+
 
     
 def monthly(request):
     return render(request,'monthly.html',{})
 
 
+from .models import YearAirQuality
+import json
+
 def year(request):
-    return render(request,'year.html',{})
+    selected_year = request.GET.get('year', 2025)
+    selected_city = request.GET.get('city', '北京')
+
+    data = YearAirQuality.objects.filter(year=selected_year, city=selected_city).order_by('month')
+
+    months = [f"{item.month}月" for item in data]
+    max_PM = [item.max_PM for item in data]
+    min_PM10 = [item.min_PM10 for item in data]
+
+    context = {
+        'selected_year': selected_year,
+        'selected_city': selected_city,
+        'months': json.dumps(months),       # ✅ 用 json.dumps
+        'max_PM': json.dumps(max_PM),
+        'min_PM10': json.dumps(min_PM10),
+    }
+
+    return render(request, 'year.html', context)
+
 
 
 from .models import AirQuality
@@ -136,3 +241,8 @@ def rank(request):
     latest_date = AirQuality.objects.latest('date').date
     rankings = AirQuality.objects.filter(date=latest_date).order_by('rank')
     return render(request, 'rank.html', {'rankings': rankings, 'latest_date': latest_date})
+
+def dist(request):
+    return render(request,'dist.html',{})
+
+
