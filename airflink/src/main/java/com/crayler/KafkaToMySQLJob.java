@@ -67,19 +67,19 @@ public class KafkaToMySQLJob {
                 int month = jsonNode.get("month").asInt();
                 double monthAQI = jsonNode.get("month_AQI").asDouble();
 
+                // 每条都删除（性能不佳，慎用）
+                try (PreparedStatement deleteStmt = conn.prepareStatement("DELETE FROM aqi_result WHERE city = ?")) {
+                    deleteStmt.setString(1, city);
+                    deleteStmt.executeUpdate();
+                }
+
+                // 插入新数据
                 ps.setString(1, city);
                 ps.setInt(2, year);
                 ps.setInt(3, month);
                 ps.setDouble(4, monthAQI);
                 ps.executeUpdate();
 
-            } catch (java.sql.SQLIntegrityConstraintViolationException e) {
-                // 主键冲突，输出已存在信息
-                System.out.printf(
-                        "已存在：%s - 年: %d, 月: %d，跳过插入！\n",
-                        objectMapper.readTree(value).get("city").asText(),
-                        objectMapper.readTree(value).get("year").asInt(),
-                        objectMapper.readTree(value).get("month").asInt());
             } catch (Exception e) {
                 e.printStackTrace();
             }
