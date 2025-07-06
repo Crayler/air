@@ -7,7 +7,7 @@ class User(models.Model):
     username = models.CharField("用户名",max_length=255,default='')
     password = models.CharField("密码",max_length=255,default='')
     creteTime = models.DateField("创建时间",auto_now_add=True)
-    email = models.EmailField(max_length=100, unique=True)
+    email = models.EmailField(max_length=100, unique=True, default='')
 
     class Meta:
         db_table = 'user'
@@ -47,10 +47,11 @@ class O3Category(models.Model):
     """O3分类数据表"""
     O3_category = models.CharField(max_length=50, verbose_name="O3分类")
     O3_count = models.IntegerField(verbose_name="数量")
+    id = models.AutoField("id",primary_key=True)
     
 
     class Meta:
-        db_table = 'eught'
+        db_table = 'eight'
 
     def __str__(self):
         return self.category
@@ -59,7 +60,7 @@ class CoCategory(models.Model):
     """CO分类数据表"""
     Co_category = models.CharField(max_length=50, verbose_name="CO分类")
     Co_count = models.IntegerField(verbose_name="数量")
-    
+    id = models.AutoField("id",primary_key=True)
 
     class Meta:
         db_table = 'seven'
@@ -85,6 +86,7 @@ class TableData(models.Model):
     No2 = models.FloatField(verbose_name="No2")
     Co = models.FloatField(verbose_name="Co")
     O3 = models.FloatField(verbose_name="O3")
+    id = models.AutoField("id",primary_key=True)
 
     class Meta:
         db_table = 'airdata'

@@ -15,7 +15,7 @@ connectionProperties = {
 
 # Read the data from the MySQL table
 schema = StructType().add("city",StringType(),nullable=True).\
-        add("data",StringType(),nullable=True). \
+        add("date",StringType(),nullable=True). \
         add("airQuality",StringType(),nullable=True). \
         add("AQI",StringType(),nullable=True). \
         add("rank",IntegerType(),nullable=True).\

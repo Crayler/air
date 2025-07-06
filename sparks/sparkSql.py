@@ -159,7 +159,7 @@ result8 = df.groupBy("O3_category").agg(count('*').alias('O3_count'))
 # 写入分析结果到数据库
 result8.write.jdbc(
     url="jdbc:mysql://192.168.31.15:3306/airdata",
-    table="eught",
+    table="eight",
     mode="overwrite",
     properties=connectionProperties
 )
