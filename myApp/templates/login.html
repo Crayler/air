@@ -41,9 +41,12 @@
                                     <div class="auth-content my-auto">
                                         <div class="text-center">
                                             <h5 class="mb-0">欢迎回来！</h5>
+                                            {% if message %}
+                                                <div class="alert alert-warning">{{ message }}</div>
+                                            {% endif %}
                                             <p class="text-muted mt-2">登录以继续使用Crayler-Air-Quality。</p>
                                         </div>
-                                        <form class="mt-4 pt-2" method="get" action="{% url 'myApp:index' %}">
+                                        <form class="mt-4 pt-2" method="post" action="{% url 'myApp:login' %}">
                                              {% csrf_token %} 
                                             <div class="mb-3">
                                                 <label class="form-label">用户名</label>

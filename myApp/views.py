@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password,make_password
 from .models import User
 from django.views import generic
 
@@ -46,15 +46,17 @@ def table(request):
     
 
 def login(request):
+    if request.session.get('is_login',None):
+        return render(request,'login.html',{})
+    if request.method == 'GET':
+        return render(request, 'login.html')
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        
         # 验证必填字段
         if not all([username, password]):
-            messages.error(request, '请输入用户名和密码')
-            return render(request, 'login.html')
-        
+            message = '请输入用户名和密码'
+            return render(request, 'login.html', {"message": message})
         try:
             # 尝试获取用户
             user = User.objects.get(username=username)
@@ -62,17 +64,18 @@ def login(request):
             # 验证密码
             if check_password(password, user.password):
                 # 密码正确，登录用户
-                login(request, user)
+                request.session['is_login'] = True
                 messages.success(request, f'欢迎回来，{username}！')
                 # 重定向到首页或之前访问的页面
-                return redirect(request.GET.get('next') or 'myApp:index')
+                return render(request,'index.html')
             else:
-                messages.error(request, '密码错误，请重新输入')
-                return render(request, 'login.html')
+                print("login error")
+                message =  '密码错误，请重新输入' 
+                return render(request, 'login.html', {"message": message})
                 
         except User.DoesNotExist:
-            messages.error(request, '用户名不存在，请检查后重试')
-            return render(request, 'login.html')
+            message= '用户名不存在，请检查后重试'
+            return render(request, 'login.html', {"message": message})
         except Exception as e:
             messages.error(request, f'登录失败: {str(e)}')
             return render(request, 'login.html')
@@ -82,11 +85,13 @@ def login(request):
 
 
 def logout(request):
+    if not request.session.get('is_login', None):
+        return render(request,'logout.html',{})
+    request.session.flush()
     return render(request,'logout.html',{})
 
 
-def register(request):
-    
+def register(request):  
     """处理用户注册请求"""
     if request.method == 'POST':
         # 从POST请求中获取注册数据
@@ -97,27 +102,27 @@ def register(request):
         
         # 简单验证数据完整性
         if not all([email, username, password]):
-            messages.error(request, '请填写完整注册信息')
-            return render(request, 'register.html')
+            message='请填写完整注册信息'
+            return render(request, 'register.html', {"message": message})
         
         # 验证邮箱是否已被注册
         if User.objects.filter(email=email).exists():
-            messages.error(request, '该邮箱已被注册')
-            return render(request, 'register.html')
+            message='该邮箱已被注册'
+            return render(request, 'register.html', {"message": message})
         
         # 验证用户名是否已存在
         if User.objects.filter(username=username).exists():
-            messages.error(request, '该用户名已存在')
-            return render(request, 'register.html')
+            message='该用户名已存在'
+            return render(request, 'register.html', {"message": message})
         try:
             # 加密密码
-            #hashed_password = make_password(password)
-            #print(hashed_password)
+            hashed_password = make_password(password)
+            print(hashed_password)
             # 创建用户
             user = User(
                 email=email,
                 username=username,
-                password=password
+                password=hashed_password
             )
             print("save user")
             user.save()

@@ -41,6 +41,9 @@
                                     <div class="auth-content my-auto">
                                         <div class="text-center">
                                             <h5 class="mb-0">注册账号</h5>
+                                            {% if message %}
+                                                <div class="alert alert-warning">{{ message }}</div>
+                                            {% endif %}
                                             <p class="text-muted mt-2">立即创建您的免费Crayler账号。</p>
                                         </div>
                                         <form id="registrationForm" method="post" class="needs-validation mt-4 pt-2" novalidate="" action="{% url 'myApp:register' %}">
