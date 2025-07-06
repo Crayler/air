@@ -94,7 +94,6 @@ def register(request):
         username = request.POST.get('username')
         password = request.POST.get('password')
         print(f"e:{email},u:{username},p:{password}")
-        print("xxx")
         
         # 简单验证数据完整性
         if not all([email, username, password]):
@@ -110,24 +109,24 @@ def register(request):
         if User.objects.filter(username=username).exists():
             messages.error(request, '该用户名已存在')
             return render(request, 'register.html')
-        
         try:
             # 加密密码
-            hashed_password = make_password(password)
-            
+            #hashed_password = make_password(password)
+            #print(hashed_password)
             # 创建用户
             user = User(
                 email=email,
                 username=username,
-                password=hashed_password
+                password=password
             )
+            print("save user")
             user.save()
             
             # 注册成功，重定向到登录页面并显示成功消息
             messages.success(request, '注册成功，请登录')
             return redirect('myApp:login')
-            
         except Exception as e:
+            print("register failed")
             messages.error(request, f'注册失败: {str(e)}')
             return render(request, 'register.html')
     
@@ -174,8 +173,7 @@ def get_latest_aqi(request):
 def predict(request):
     return render(request,'predict.html',{})
 
-def rank(request):
-    return render(request,'rank.html',{})
+
 
 
 from .models import YearAirQuality
