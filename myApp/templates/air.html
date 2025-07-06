@@ -1,4 +1,70 @@
+
 <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>空气质量预测分析</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .page-title {
+            text-align: center;
+            margin: 3px 0 20px;
+            font-size: 28px;
+            color: #333;
+        }
+        #citySelector {
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            margin-top:-20px
+        }
+        .chart-container {
+            height: 400px;
+            margin: 0 auto;
+        }
+        .chart-analysis {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .chart-analysis h2 {
+            margin-top: 0;
+            color: #444;
+        }
+        .chart-analysis p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1 class="page-title">空气质量预测分析</h1>
+
+    <select id="citySelector">
+        <option value="">--请选择城市--</option>
+        <option value="重庆">重庆</option><option value="上海">上海</option><option value="北京">北京</option><option value="广州">广州</option><option value="成都">成都</option><option value="杭州">杭州</option><option value="武汉">武汉</option><option value="深圳">深圳</option><option value="苏州">苏州</option>
+    </select>
+
+    <div class="chart-card">
+        TYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -5187,6 +5253,57 @@
     </script>
 <br/>    </div>
     <script>
+    </script>
+
+    </div>
+
+    <div class="chart-analysis">
+        <h2>图表分析</h2>
+        <p id="analysisText">请选择城市查看该城市的预测与实际对比分析。</p>
+    </div>
+
+    <script>
+        const analysisTexts = {
+            '重庆': `重庆：预测的平均AQI为 59.60，实际平均AQI为 57.07，平均绝对误差（MAE）为 6.43，预测偏差约为 +4.44%。整体来看，预测偏高，误差较小。`,'上海': `上海：预测的平均AQI为 64.43，实际平均AQI为 64.64，平均绝对误差（MAE）为 6.79，预测偏差约为 -0.33%。整体来看，预测偏低，误差较小。`,'北京': `北京：预测的平均AQI为 65.84，实际平均AQI为 66.47，平均绝对误差（MAE）为 7.30，预测偏差约为 -0.94%。整体来看，预测偏低，误差较小。`,'广州': `广州：预测的平均AQI为 50.06，实际平均AQI为 46.59，平均绝对误差（MAE）为 5.65，预测偏差约为 +7.45%。整体来看，预测偏高，误差较小。`,'成都': `成都：预测的平均AQI为 71.46，实际平均AQI为 72.87，平均绝对误差（MAE）为 6.79，预测偏差约为 -1.93%。整体来看，预测偏低，误差较小。`,'杭州': `杭州：预测的平均AQI为 63.34，实际平均AQI为 62.97，平均绝对误差（MAE）为 4.74，预测偏差约为 +0.59%。整体来看，预测偏高，误差较小。`,'武汉': `武汉：预测的平均AQI为 69.80，实际平均AQI为 69.58，平均绝对误差（MAE）为 4.86，预测偏差约为 +0.32%。整体来看，预测偏高，误差较小。`,'深圳': `深圳：预测的平均AQI为 50.80，实际平均AQI为 47.16，平均绝对误差（MAE）为 5.65，预测偏差约为 +7.71%。整体来看，预测偏高，误差较小。`,'苏州': `苏州：预测的平均AQI为 70.36，实际平均AQI为 69.39，平均绝对误差（MAE）为 7.50，预测偏差约为 +1.40%。整体来看，预测偏高，误差较小。`,
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.chart-container').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            const defaultCity = '重庆';
+            const citySelector = document.getElementById('citySelector');
+
+            for (let i = 0; i < citySelector.options.length; i++) {
+                if (citySelector.options[i].value === defaultCity) {
+                    citySelector.selectedIndex = i;
+                    break;
+                }
+            }
+
+            if (citySelector.value === defaultCity) {
+                document.getElementById('chart_' + defaultCity).style.display = 'block';
+                updateAnalysis(defaultCity);
+            }
+
+            citySelector.addEventListener('change', function() {
+                document.querySelectorAll('.chart-container').forEach(el => {
+                    el.style.display = 'none';
+                });
+
+                const selectedCity = this.value;
+                if (selectedCity) {
+                    document.getElementById('chart_' + selectedCity).style.display = 'block';
+                    updateAnalysis(selectedCity);
+                }
+            });
+
+            function updateAnalysis(city) {
+                const analysis = analysisTexts[city] || '暂无该城市分析。';
+                document.getElementById('analysisText').innerText = analysis;
+            }
+        });
     </script>
 </body>
 </html>

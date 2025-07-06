@@ -122,3 +122,23 @@ result9 = df.groupBy("city", year("date").alias("year"), month("date").alias("mo
 
 # 写入分析结果到Hive
 result9.write.mode("overwrite").saveAsTable("dm_db.dm_city_month_aqi")    
+
+
+# 需求分析10：各城市空气质量排名趋势分析
+rank_trend = df.select("city", "date", "rank").orderBy("city", "date")
+windowSpec = Window.partitionBy("city").orderBy("date")
+rank_trend = rank_trend.withColumn("prev_rank", lag("rank").over(windowSpec))
+rank_trend = rank_trend.withColumn("rank_change", col("prev_rank").cast("int") - col("rank").cast("int"))
+# 填充DataFrame中的null值
+rank_trend = rank_trend.fillna({
+    "prev_rank": 0,
+    "rank_change": 0
+})
+# 注册为临时视图
+rank_trend.createOrReplaceTempView("rank_analysis")
+
+# 写入分析结果到Hive
+rank_trend.write \
+    .format("hive") \
+    .mode("overwrite") \
+    .saveAsTable("dm_db.dm_rank_analysis")

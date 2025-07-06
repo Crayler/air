@@ -12,16 +12,17 @@ class User(models.Model):
     class Meta:
         db_table = 'user'
 
-
+# 优秀天数
 class AirQuality(models.Model):
-    city = models.CharField(max_length=100, primary_key=True)  # 👈 单字段主键
-    date = models.DateField()
-    rank = models.IntegerField()
-    prev_rank = models.IntegerField()
-    rank_change = models.IntegerField()
+
+    city = models.CharField(max_length=100, primary_key=True)
+    year = models.IntegerField()
+    month = models.IntegerField()
+    count_grate= models.IntegerField()
+
 
     class Meta:
-        db_table = 'rank_analysis'
+        db_table = 'five'
         managed = False  # 表已存在，不让 Django 自动迁移   
 
      
@@ -41,22 +42,7 @@ class YearAirQuality(models.Model):
         return f"{self.city} - {self.year}-{self.month}"
 
 
-#空气质量地图展示
-class dituAirQuality(models.Model):
-    city = models.CharField(max_length=100)
-    year = models.IntegerField()
-    month = models.IntegerField()
-    max_AQI = models.FloatField()
-    min_AQI = models.FloatField()
-
-    class Meta:
-        db_table = 'three'
-        managed = False  # 如果是现有表，不生成迁移
-
-    def __str__(self):
-        return f"{self.city} {self.year}年{self.month}月 AQI({self.min_AQI}-{self.max_AQI})"
-
-
+# O3
 class O3Category(models.Model):
     """O3分类数据表"""
     O3_category = models.CharField(max_length=50, verbose_name="O3分类")
@@ -105,3 +91,4 @@ class TableData(models.Model):
 
     def __str__(self):
         return f"{self.city} - {self.date}"
+

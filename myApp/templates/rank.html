@@ -1,43 +1,352 @@
 {% extends 'common/base.html' %}
-
 {% block base %}
-{% load static %}
+<!-- 引入依赖 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 
-<h1 style="text-align: center; margin: 20px 0;">城市空气质量排行榜（{{ latest_date }}）</h1>
+<!-- 统一蓝紫色主题样式（移除黄色系） -->
+<style>
+    :root {
+        --primary: #5B6EF9;        /* 主色：深蓝紫 */
+        --primary-dark: #4A5BDB;    /* 主色深 */
+        --purple: #8A63D2;         /* 紫色 */
+        --purple-light: #A78BFA;    /* 浅紫色 */
+        --indigo: #7C73E6;         /* 靛蓝色 */
+        --lavender: #F3F0FF;       /* 淡紫色背景 */
+        --text-dark: #333333;      /* 深色文本 */
+        --text-gray: #6B7280;      /* 灰色文本 */
+    }
 
-<table style="width: 80%; margin: 0 auto; border-collapse: collapse; text-align: center;">
-    <thead>
-        <tr style="background-color: #f2f2f2;">
-            <th style="border: 1px solid #ddd; padding: 8px;">排名</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">城市</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">日期</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">上一排名</th>
-            <th style="border: 1px solid #ddd; padding: 8px;">排名变化</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for item in rankings %}
-        <tr>
-            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.rank }}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.city }}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.date }}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">{{ item.prev_rank }}</td>
-            <td style="border: 1px solid #ddd; padding: 8px;">
-                {% if item.rank_change > 0 %}
-                    <span style="color: green;">↑ {{ item.rank_change }}</span>
-                {% elif item.rank_change < 0 %}
-                    <span style="color: red;">↓ {{ item.rank_change }}</span>
-                {% else %}
-                    -
-                {% endif %}
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="5" style="border: 1px solid #ddd; padding: 8px;">暂无数据</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    /* 基础样式 */
+    body {
+        font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        color: var(--text-dark);
+        background-color: #F9FAFB;
+    }
 
+    /* 卡片样式 */
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: none;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(91, 110, 249, 0.1);
+    }
+
+    /* 背景色 */
+    .bg-primary { background-color: var(--primary) !important; }
+    .bg-purple { background-color: var(--purple) !important; }
+    .bg-purple-light { background-color: var(--purple-light) !important; }
+    .bg-indigo { background-color: var(--indigo) !important; }
+    .bg-lavender { background-color: var(--lavender) !important; }
+
+    /* 文本颜色 */
+    .text-primary { color: var(--primary) !important; }
+    .text-purple { color: var(--purple) !important; }
+    .text-gray { color: var(--text-gray) !important; }
+
+    /* 按钮样式 */
+    .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-2px);
+    }
+
+    /* 进度条 */
+    .progress-bar {
+        background-color: var(--purple);
+        transition: width 1s ease-in-out;
+    }
+
+    /* 表格样式 */
+    .table thead th {
+        background-color: var(--primary);
+        color: white;
+    }
+    .table-striped tbody tr:nth-of-type(odd) {
+        background-color: rgba(91, 110, 249, 0.05);
+    }
+</style>
+
+<div class="container my-5" >
+    <!-- 筛选器区域 -->
+    <div class="card mb-4" style="margin-top: -3%;"  >
+        <div class="card-body">
+            <h3 class="card-title">数据筛选</h3>
+            <form method="GET" class="row g-3">
+                <div class="col-md-4">
+                    <label for="year" class="form-label">选择年份</label>
+                    <select id="year" name="year" class="form-select">
+                        {% for year in years %}
+                        <option value="{{ year }}" {% if year == selected_year|add:0 %}selected{% endif %}>
+                            {{ year }}年
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="month" class="form-label">选择月份</label>
+                    <select id="month" name="month" class="form-select">
+                        {% for month in months %}
+                        <option value="{{ month }}" {% if month == selected_month|add:0 %}selected{% endif %}>
+                            {{ month }}月
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fa fa-filter mr-2"></i>筛选数据
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 数据概览卡片（原黄色卡片改为紫蓝色） -->
+    <div class="row g-4 mb-5" >
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body" >
+                    <h5 class="card-title">城市总数</h5>
+                    <p class="card-text display-4">{{ rankings|length }}</p>
+                    <p class="text-white-75">个城市参与统计</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-purple text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">总优秀天数</h5>
+                    <p class="card-text display-4">{{ total_days }}</p>
+                    <p class="text-white-75">天空气质量优秀</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-purple-light text-dark h-100">
+                <div class="card-body">
+                    <h5 class="card-title">最高优秀天数</h5>
+                    <p class="card-text display-4">{{ max_days }}</p>
+                    <p class="text-dark-75">天（{{ rankings.0.city }}）</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 城市排名表格 -->
+    <div class="card shadow mb-5">
+        <div class="card-header bg-primary text-white">
+            <h2>城市排名</h2>
+            <p class="mb-0">统计时间：{{ latest_date }}</p>
+        </div>
+        <div class="card-body p-4">
+            {% if rankings %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>排名</th>
+                            <th>城市</th>
+                            <th>优秀天数</th>
+                            <th>相对比例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in rankings %}
+                        <tr>
+                            <td>{{ item.rank }}</td>
+                            <td>{{ item.city }}</td>
+                            <td>{{ item.count_grate }}</td>
+                            <td>
+                                <div class="progress" style="height: 25px;">
+                                    <div class="progress-bar bg-primary" role="progressbar" 
+                                        style="width: {{ item.percentage }}%" 
+                                        aria-valuenow="{{ item.percentage }}" 
+                                        aria-valuemin="0" aria-valuemax="100">
+                                        {{ item.percentage|floatformat:1 }}%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fa fa-exclamation-circle fa-3x mb-3"></i>
+                <p>暂无该月份数据</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 可视化图表区域 -->
+    <div class="card shadow mb-5">
+        <div class="card-header bg-indigo text-white">
+            <h2>优秀天数分布可视化</h2>
+        </div>
+        <div class="card-body p-4">
+            {% if rankings %}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h4>优秀天数柱状图</h4>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h4>城市分布环形图</h4>
+                    <div class="chart-container" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                        <div style="position: relative; width: 100%;">
+                            <canvas id="pieChart"></canvas>
+                            <!-- 环形图中心文本 -->
+                            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center;">
+                                <p class="text-primary font-bold" style="font-size: 1.5rem;">{{ rankings|length }}个城市</p>
+                                <p class="text-gray" style="font-size: 0.8rem;">优秀天数分布</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-muted py-5">
+                <i class="fa fa-exclamation-circle fa-3x mb-3"></i>
+                <p>暂无数据可可视化</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (!{{ rankings|length }}) return;
+        
+        // 准备图表数据
+        const cities = [{% for item in rankings %}"{{ item.city }}",{% endfor %}];
+        const counts = [{% for item in rankings %}{{ item.count_grate }},{% endfor %}];
+        
+        // 创建柱状图
+        const barCtx = document.getElementById('barChart').getContext('2d');
+        new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: cities,
+                datasets: [{
+                    label: '优秀天数',
+                    data: counts,
+                    backgroundColor: 'rgba(91, 110, 249, 0.7)',
+                    borderColor: 'rgba(91, 110, 249, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: '优秀天数'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: '城市'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // 创建环形图
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        
+        // 计算区间分布
+        const intervals = {
+            '0-5天': 0,
+            '6-10天': 0,
+            '11-15天': 0,
+            '16-20天': 0,
+            '21-25天': 0,
+            '26-30天': 0
+        };
+        
+        counts.forEach(count => {
+            if (count <= 5) intervals['0-5天']++;
+            else if (count <= 10) intervals['6-10天']++;
+            else if (count <= 15) intervals['11-15天']++;
+            else if (count <= 20) intervals['16-20天']++;
+            else if (count <= 25) intervals['21-25天']++;
+            else intervals['26-30天']++;
+        });
+        
+        // 过滤空区间
+        const intervalLabels = Object.keys(intervals).filter(key => intervals[key] > 0);
+        const intervalData = intervalLabels.map(key => intervals[key]);
+        
+        new Chart(pieCtx, {
+            type: 'doughnut', // 环形图
+            data: {
+                labels: intervalLabels,
+                datasets: [{
+                    data: intervalData,
+                    backgroundColor: [
+                        'rgba(91, 110, 249, 0.7)',    // 主色
+                        'rgba(138, 99, 210, 0.7)',    // 紫色1
+                        'rgba(124, 115, 230, 0.7)',   // 紫色2
+                        'rgba(156, 137, 247, 0.7)',   // 紫色3
+                        'rgba(179, 157, 219, 0.7)',   // 紫色4
+                        'rgba(140, 115, 230, 0.7)'    // 紫色5
+                    ],
+                    borderColor: [
+                        'rgba(91, 110, 249, 1)',
+                        'rgba(138, 99, 210, 1)',
+                        'rgba(124, 115, 230, 1)',
+                        'rgba(156, 137, 247, 1)',
+                        'rgba(179, 157, 219, 1)',
+                        'rgba(140, 115, 230, 1)'
+                    ],
+                    borderWidth: 1,
+                    cutout: '60%', // 环形内圈大小
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom', // 图例底部显示
+                        labels: {
+                            boxWidth: 12,
+                            padding: 20,
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw}个城市`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -11,11 +11,10 @@ urlpatterns = [
     path('realtime/', views.realtime,name= 'realtime'),
     path('predict/', views.predict,name= 'predict'),
     path('rank/', views.rank,name= 'rank'),
-    path('dist/', views.dist,name= 'dist'),
-    path('monthly/', views.monthly,name= 'monthly'),
     path('year/', views.year,name= 'year'),
     path('gas/', views.gas,name= 'gas'),
     path('table/', views.table,name= 'table'),
+    path('air/', views.air,name= 'air'),
 
    
 ]

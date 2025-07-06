@@ -1,0 +1,550 @@
+{% extends 'common/base.html' %}
+<title>城市空气质量数据</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#64748B',
+                        accent: '#0EA5E9',
+                        neutral: '#1E293B',
+                        'base-100': '#FFFFFF',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .card-shadow {
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            }
+            .gradient-bg {
+                background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+            }
+        }
+    </style>
+{% block base %}
+{% load static %}
+ <main class="flex-grow pt-24 pb-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 标题和说明 -->
+            <div class="text-center mb-12">
+                <h1 class="text-[clamp(2rem,5vw,3.5rem)] font-bold text-neutral mb-4">城市空气质量数据</h1>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">实时监测各城市空气中二氧化硫(SO₂)和二氧化氮(NO₂)的含量，助力您了解环境质量，关注健康生活。</p>
+            </div>
+
+            <!-- 数据筛选和搜索 -->
+            <div class="bg-white rounded-xl p-6 shadow-lg mb-10 transform transition-all duration-300 hover:shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div class="flex-1">
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fa fa-search text-gray-400"></i>
+                            </div>
+                            <input type="text" id="search-city" class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all duration-200" placeholder="搜索城市...">
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="sort-so2" class="px-4 py-3 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors duration-200 flex items-center">
+                            <i class="fa fa-sort-numeric-asc mr-2"></i>
+                            <span>SO₂ 排序</span>
+                        </button>
+                        <button id="sort-no2" class="px-4 py-3 bg-secondary text-white rounded-lg hover:bg-secondary/90 transition-colors duration-200 flex items-center">
+                            <i class="fa fa-sort-numeric-asc mr-2"></i>
+                            <span>NO₂ 排序</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 图表展示 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                <div class="bg-white rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <h2 class="text-xl font-bold text-neutral mb-4 flex items-center">
+                        <i class="fa fa-line-chart text-primary mr-2"></i>
+                        二氧化硫(SO₂)含量对比
+                    </h2>
+                    <div class="h-80">
+                        <canvas id="so2Chart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl p-6 shadow-lg transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+                    <h2 class="text-xl font-bold text-neutral mb-4 flex items-center">
+                        <i class="fa fa-bar-chart text-accent mr-2"></i>
+                        二氧化氮(NO₂)含量对比
+                    </h2>
+                    <div class="h-80">
+                        <canvas id="no2Chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据表格 -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-neutral mb-4 flex items-center">
+                        <i class="fa fa-table text-primary mr-2"></i>
+                        空气质量详细数据
+                    </h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">城市</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">二氧化硫(SO₂)最大值</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">二氧化氮(NO₂)最大值</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">质量等级</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">趋势</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200" id="data-table-body">
+                                <!-- 数据将通过JavaScript动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <!-- 分页 -->
+                <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6" id="pagination">
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-sm text-gray-700">
+                                显示 <span class="font-medium" id="start-item">1</span> 到 <span class="font-medium" id="end-item">5</span> 条，共 <span class="font-medium" id="total-items">20</span> 条结果
+                            </p>
+                        </div>
+                        <div>
+                            <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fa fa-chevron-left text-xs"></i>
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-primary text-sm font-medium text-white hover:bg-primary/90">
+                                    1
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    2
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    3
+                                </a>
+                                <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                                    ...
+                                </span>
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                    4
+                                </a>
+                                <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                    <i class="fa fa-chevron-right text-xs"></i>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-neutral text-white">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fa fa-leaf text-primary mr-2"></i>
+                        空气质量监测
+                    </h3>
+                    <p class="text-gray-400 mb-4">提供准确、及时的空气质量数据，帮助您了解和关注身边的环境质量。</p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">
+                            <i class="fa fa-weibo text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">
+                            <i class="fa fa-wechat text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">快速链接</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">首页</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">数据展示</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">关于我们</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-primary transition-colors duration-200">联系我们</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">联系我们</h3>
+                    <ul class="space-y-2">
+                        <li class="flex items-center">
+                            <i class="fa fa-map-marker text-primary mr-3"></i>
+                            <span class="text-gray-400">北京市海淀区中关村南大街5号</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-phone text-primary mr-3"></i>
+                            <span class="text-gray-400">010-12345678</span>
+                        </li>
+                        <li class="flex items-center">
+                            <i class="fa fa-envelope text-primary mr-3"></i>
+                            <span class="text-gray-400">contact@airquality.com</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500">
+                <p>&copy; 2025 空气质量监测平台 版权所有</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 空气质量数据（从服务器获取）
+        let airQualityData = [];
+        
+        // 移动菜单切换
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        });
+        
+        // 滚动时导航栏效果
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 10) {
+                navbar.classList.add('shadow-lg');
+                navbar.classList.add('bg-white/95');
+                navbar.classList.add('backdrop-blur-sm');
+            } else {
+                navbar.classList.remove('shadow-lg');
+                navbar.classList.remove('bg-white/95');
+                navbar.classList.remove('backdrop-blur-sm');
+            }
+        });
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 从服务器获取数据
+            fetchAirQualityData();
+            
+            // 为搜索框添加事件监听
+            document.getElementById('search-city').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                filterData(searchTerm);
+            });
+            
+            // 为排序按钮添加事件监听
+            document.getElementById('sort-so2').addEventListener('click', function() {
+                sortData('max_so2');
+            });
+            
+            document.getElementById('sort-no2').addEventListener('click', function() {
+                sortData('max_no2');
+            });
+        });
+        
+        // 从服务器获取空气质量数据
+        function fetchAirQualityData() {
+            // 模拟AJAX请求
+            // 实际应用中应该使用fetch或axios等发送请求到Django视图
+            // 这里使用模拟数据
+            setTimeout(() => {
+                // 模拟数据
+                airQualityData = [
+                    {id: 1, city: "北京", max_so2: 35.2, max_no2: 46.8},
+                    {id: 2, city: "上海", max_so2: 28.7, max_no2: 52.1},
+                    {id: 3, city: "广州", max_so2: 22.5, max_no2: 38.9},
+                    {id: 4, city: "深圳", max_so2: 18.3, max_no2: 34.5},
+                    {id: 5, city: "成都", max_so2: 30.1, max_no2: 41.2},
+                    {id: 6, city: "杭州", max_so2: 25.4, max_no2: 45.7},
+                    {id: 7, city: "南京", max_so2: 29.6, max_no2: 49.3},
+                    {id: 8, city: "武汉", max_so2: 27.8, max_no2: 43.6},
+                    {id: 9, city: "西安", max_so2: 42.3, max_no2: 51.8},
+                    {id: 10, city: "重庆", max_so2: 31.9, max_no2: 44.2},
+                    {id: 11, city: "天津", max_so2: 38.5, max_no2: 47.9},
+                    {id: 12, city: "长沙", max_so2: 24.7, max_no2: 39.5},
+                    {id: 13, city: "郑州", max_so2: 36.4, max_no2: 48.6},
+                    {id: 14, city: "青岛", max_so2: 21.8, max_no2: 35.7},
+                    {id: 15, city: "大连", max_so2: 19.3, max_no2: 32.4},
+                    {id: 16, city: "厦门", max_so2: 15.6, max_no2: 28.9},
+                    {id: 17, city: "哈尔滨", max_so2: 33.2, max_no2: 40.7},
+                    {id: 18, city: "长春", max_so2: 30.5, max_no2: 37.6},
+                    {id: 19, city: "沈阳", max_so2: 34.8, max_no2: 42.3},
+                    {id: 20, city: "济南", max_so2: 37.1, max_no2: 46.2}
+                ];
+                
+                // 渲染数据
+                renderDataTable(airQualityData);
+                renderCharts(airQualityData);
+            }, 800);
+        }
+        
+        // 渲染数据表格
+        function renderDataTable(data) {
+            const tableBody = document.getElementById('data-table-body');
+            tableBody.innerHTML = '';
+            
+            if (data.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">没有找到匹配的数据</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            // 只显示前5条数据（分页处理）
+            const displayData = data.slice(0, 5);
+            
+            // 更新分页信息
+            document.getElementById('start-item').textContent = 1;
+            document.getElementById('end-item').textContent = Math.min(5, data.length);
+            document.getElementById('total-items').textContent = data.length;
+            
+            // 渲染表格行
+            displayData.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition-colors duration-150';
+                
+                // 计算质量等级
+                const so2Level = getPollutantLevel('so2', item.max_so2);
+                const no2Level = getPollutantLevel('no2', item.max_no2);
+                const overallLevel = getOverallLevel(so2Level, no2Level);
+                
+                // 计算趋势（模拟数据）
+                const trends = ['上升', '下降', '平稳'];
+                const trend = trends[Math.floor(Math.random() * trends.length)];
+                let trendIcon = '';
+                let trendColor = '';
+                
+                if (trend === '上升') {
+                    trendIcon = '<i class="fa fa-arrow-up text-red-500"></i>';
+                    trendColor = 'text-red-500';
+                } else if (trend === '下降') {
+                    trendIcon = '<i class="fa fa-arrow-down text-green-500"></i>';
+                    trendColor = 'text-green-500';
+                } else {
+                    trendIcon = '<i class="fa fa-minus text-gray-500"></i>';
+                    trendColor = 'text-gray-500';
+                }
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary mr-3">
+                                <span class="font-medium">${item.city.substring(0, 1)}</span>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900">${item.city}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.max_so2.toFixed(1)} μg/m³</div>
+                        <div class="text-xs text-gray-500">${so2Level.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">${item.max_no2.toFixed(1)} μg/m³</div>
+                        <div class="text-xs text-gray-500">${no2Level.name}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${overallLevel.color}">
+                            ${overallLevel.name}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center">
+                            <span class="${trendColor} mr-1">${trendIcon}</span>
+                            ${trend}
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // 渲染图表
+        function renderCharts(data) {
+            // 准备数据
+            const cities = data.slice(0, 10).map(item => item.city);
+            const so2Values = data.slice(0, 10).map(item => item.max_so2);
+            const no2Values = data.slice(0, 10).map(item => item.max_no2);
+            
+            // SO2 图表
+            const so2Ctx = document.getElementById('so2Chart').getContext('2d');
+            const so2Chart = new Chart(so2Ctx, {
+                type: 'bar',
+                data: {
+                    labels: cities,
+                    datasets: [{
+                        label: '二氧化硫(SO₂) 最大值 (μg/m³)',
+                        data: so2Values,
+                        backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+            
+            // NO2 图表
+            const no2Ctx = document.getElementById('no2Chart').getContext('2d');
+            const no2Chart = new Chart(no2Ctx, {
+                type: 'line',
+                data: {
+                    labels: cities,
+                    datasets: [{
+                        label: '二氧化氮(NO₂) 最大值 (μg/m³)',
+                        data: no2Values,
+                        backgroundColor: 'rgba(14, 165, 233, 0.2)',
+                        borderColor: 'rgba(14, 165, 233, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: false
+                        }
+                    },
+                    animation: {
+                        duration: 2000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+        
+        // 过滤数据
+        function filterData(searchTerm) {
+            if (!searchTerm) {
+                renderDataTable(airQualityData);
+                return;
+            }
+            
+            const filteredData = airQualityData.filter(item => 
+                item.city.toLowerCase().includes(searchTerm)
+            );
+            
+            renderDataTable(filteredData);
+        }
+        
+        // 排序数据
+        function sortData(field) {
+            const sortedData = [...airQualityData].sort((a, b) => b[field] - a[field]);
+            renderDataTable(sortedData);
+        }
+        
+        // 获取污染物等级
+        function getPollutantLevel(type, value) {
+            // 根据中国空气质量标准
+            // 这里简化处理，实际应用中应该使用完整的标准
+            if (type === 'so2') {
+                if (value <= 50) return { name: '优', color: 'bg-green-100 text-green-800' };
+                if (value <= 150) return { name: '良', color: 'bg-yellow-100 text-yellow-800' };
+                if (value <= 475) return { name: '轻度污染', color: 'bg-orange-100 text-orange-800' };
+                if (value <= 800) return { name: '中度污染', color: 'bg-red-100 text-red-800' };
+                if (value <= 1600) return { name: '重度污染', color: 'bg-purple-100 text-purple-800' };
+                return { name: '严重污染', color: 'bg-red-900 text-white' };
+            } else if (type === 'no2') {
+                if (value <= 40) return { name: '优', color: 'bg-green-100 text-green-800' };
+                if (value <= 80) return { name: '良', color: 'bg-yellow-100 text-yellow-800' };
+                if (value <= 180) return { name: '轻度污染', color: 'bg-orange-100 text-orange-800' };
+                if (value <= 280) return { name: '中度污染', color: 'bg-red-100 text-red-800' };
+                if (value <= 565) return { name: '重度污染', color: 'bg-purple-100 text-purple-800' };
+                return { name: '严重污染', color: 'bg-red-900 text-white' };
+            }
+            return { name: '未知', color: 'bg-gray-100 text-gray-800' };
+        }
+        
+        // 获取整体空气质量等级
+        function getOverallLevel(so2Level, no2Level) {
+            // 简化处理，取两个污染物中等级最差的
+            const levels = ['优', '良', '轻度污染', '中度污染', '重度污染', '严重污染'];
+            const so2Index = levels.indexOf(so2Level.name);
+            const no2Index = levels.indexOf(no2Level.name);
+            const worstIndex = Math.max(so2Index, no2Index);
+            
+            return {
+                name: levels[worstIndex],
+                color: [
+                    'bg-green-100 text-green-800',
+                    'bg-yellow-100 text-yellow-800',
+                    'bg-orange-100 text-orange-800',
+                    'bg-red-100 text-red-800',
+                    'bg-purple-100 text-purple-800',
+                    'bg-red-900 text-white'
+                ][worstIndex]
+            };
+        }
+    </script>
+{% endblock %}

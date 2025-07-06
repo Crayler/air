@@ -70,3 +70,31 @@ python manage.py createsuperuser
 crayler
 12345678
 ```
+
+## hadoop环境
+```bash
+start-all.sh
+service mysqld start  启动 mysql 服务
+ps -ef | grep mysql  查看mysql 服务是否启动
+hive --service metastore
+hiveserver2
+启动hive
+!connect jdbc:hive2://192.168.100.100:10000/default
+用户名hive  密码123456
+
+```
+
+## 实时
+```bash
+1、启动Zookeeper服务
+    cd  /opt/kafka_2.12-3.4.1/ 
+    ./bin/zookeeper-server-start.sh ./config/zookeeper.properties
+
+2、启动Kafka服务
+    cd  /opt/kafka_2.12-3.4.1/
+    ./bin/kafka-server-start.sh  config/server.properties
+启动kafka消费者
+    bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic aqi_topic --from-beginning
+
+
+```

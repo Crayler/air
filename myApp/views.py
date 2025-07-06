@@ -147,68 +147,6 @@ def rank(request):
     return render(request,'rank.html',{})
 
 
-
-
-import json
-from django.shortcuts import render
-from django.db.models import F
-from .models import dituAirQuality
-def dist(request):
-    year = 2025
-    month = int(request.GET.get('month', 1))
-    
-    # 验证月份是否有效
-    if month not in range(1, 13):
-        month = 1
-    
-    try:
-        # 使用数据库函数计算平均AQI
-        data_qs = dituAirQuality.objects.filter(year=year, month=month).annotate(
-            avg_aqi=(F('max_AQI') + F('min_AQI')) / 2
-        ).order_by('city')
-
-        cities = [item.city for item in data_qs]
-        avg_aqis = [item.avg_aqi for item in data_qs]
-
-        # 当没有数据时显示默认值
-        if not cities:
-            cities = ["北京", "上海", "广州", "深圳", "成都", "杭州", "武汉", "西安", "南京"]
-            avg_aqis = [120, 80, 90, 75, 100, 70, 95, 110, 85]
-            no_data = True
-        else:
-            no_data = False
-
-    except Exception as e:
-        # 错误处理
-        print(f"Error fetching AQI data: {e}")
-        cities = ["北京", "上海", "广州"]
-        avg_aqis = [100, 100, 100]
-        no_data = True
-
-    months = list(range(1, 13))
-
-    print('DEBUG cities:', cities)
-    print('DEBUG avg_aqis:', avg_aqis)
-
-    context = {
-        'year': year,
-        'month': month,
-        'cities': json.dumps(cities, ensure_ascii=False),
-        'avg_aqis': json.dumps(avg_aqis, ensure_ascii=False),
-        'months': months,
-        'no_data': no_data,
-    }
-
-    return render(request, 'dist.html', context)
-
-
-
-
-    
-def monthly(request):
-    return render(request,'monthly.html',{})
-
-
 from .models import YearAirQuality
 import json
 
@@ -234,15 +172,52 @@ def year(request):
 
 
 
+from django.db.models import Sum
 from .models import AirQuality
 
 def rank(request):
-    # 从数据库取最近一天的数据，并按 rank 排序
-    latest_date = AirQuality.objects.latest('date').date
-    rankings = AirQuality.objects.filter(date=latest_date).order_by('rank')
-    return render(request, 'rank.html', {'rankings': rankings, 'latest_date': latest_date})
+    # 获取可选的年月列表
+    years = AirQuality.objects.values_list('year', flat=True).distinct().order_by('-year')
+    months = AirQuality.objects.values_list('month', flat=True).distinct().order_by('month')
+    
+    # 默认显示最新年月数据
+    latest_data = AirQuality.objects.order_by('-year', '-month').first()
+    selected_year = request.GET.get('year', latest_data.year if latest_data else None)
+    selected_month = request.GET.get('month', latest_data.month if latest_data else None)
+    
+    rankings = []
+    latest_date = "暂无数据"
+    total_days = 0
+    max_days = 0
 
-def dist(request):
-    return render(request,'dist.html',{})
+    if selected_year and selected_month:
+        # 筛选指定年月的数据
+        queryset = AirQuality.objects.filter(
+            year=selected_year,
+            month=selected_month
+        ).order_by('-count_grate')
+        
+        # 添加排名和百分比信息
+        total_days = queryset.aggregate(total=Sum('count_grate'))['total'] or 0
+        max_days = queryset.first().count_grate if queryset else 0
+        
+        for i, item in enumerate(queryset, 1):
+            item.rank = i
+            item.percentage = (item.count_grate / max_days * 100) if max_days > 0 else 0
+            rankings.append(item)
+        
+        latest_date = f"{selected_year}年{selected_month}月"
+
+    return render(request, 'rank.html', {
+        'rankings': rankings,
+        'latest_date': latest_date,
+        'years': years,
+        'months': months,
+        'selected_year': selected_year,
+        'selected_month': selected_month,
+        'total_days': total_days,
+        'max_days': max_days,
+    })
+
 
 

@@ -176,3 +176,25 @@ result9.write.jdbc(
     mode="overwrite",
     properties=connectionProperties
 )
+
+
+# 需求分析10：各城市空气质量排名趋势分析
+rank_trend = df.select("city", "date", "rank").orderBy("city", "date")
+windowSpec = Window.partitionBy("city").orderBy("date")
+rank_trend = rank_trend.withColumn("prev_rank", lag("rank").over(windowSpec))
+rank_trend = rank_trend.withColumn("rank_change", col("prev_rank").cast("int") - col("rank").cast("int"))
+# 填充DataFrame中的null值
+rank_trend = rank_trend.fillna({
+    "prev_rank": 0,
+    "rank_change": 0
+})
+# 注册为临时视图
+rank_trend.createOrReplaceTempView("rank_analysis")
+
+# 写入分析结果到数据库
+rank_trend.write.jdbc(
+    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    table="rank_analysis",
+    mode="overwrite",
+    properties=connectionProperties
+)
