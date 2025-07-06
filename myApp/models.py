@@ -23,7 +23,7 @@ class AirQuality(models.Model):
 
     class Meta:
         db_table = 'five'
-        managed = False  # 表已存在，不让 Django 自动迁移   
+        #managed = False  # 表已存在，不让 Django 自动迁移   
 
      
 # 年度分析
@@ -36,7 +36,7 @@ class YearAirQuality(models.Model):
 
     class Meta:
         db_table = 'four'
-        managed = False
+        #managed = False
 
     def __str__(self):
         return f"{self.city} - {self.year}-{self.month}"
