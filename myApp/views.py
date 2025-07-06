@@ -136,8 +136,39 @@ def register(request):
 
 
     
+from django.http import JsonResponse
+from django.db import connection
+
 def realtime(request):
-    return render(request,'realtime.html',{})
+    # 页面初次渲染只需要把模板返回，前端 JS 自己 fetch 数据
+    return render(request, 'realtime.html')
+
+def get_latest_aqi(request):
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT city, year, month, avg_month_AQI FROM aqi_result ORDER BY year DESC, month DESC LIMIT 1"
+        )
+        row = cursor.fetchone()
+
+    print('==== Latest AQI row:', row)  # 加这个！
+
+    if row:
+        data = {
+            'city': row[0],
+            'year': row[1],
+            'month': row[2],
+            'avg_month_AQI': float(row[3])
+        }
+    else:
+        data = {
+            'city': '',
+            'year': '',
+            'month': '',
+            'avg_month_AQI': 0
+        }
+
+    return JsonResponse(data)
+
 
 
 def predict(request):

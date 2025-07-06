@@ -15,6 +15,7 @@ urlpatterns = [
     path('gas/', views.gas,name= 'gas'),
     path('table/', views.table,name= 'table'),
     path('air/', views.air,name= 'air'),
+    path('get_latest_aqi/', views.get_latest_aqi, name='get_latest_aqi'),
 
    
 ]

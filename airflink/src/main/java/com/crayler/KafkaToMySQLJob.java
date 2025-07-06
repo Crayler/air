@@ -1,0 +1,97 @@
+package com.crayler;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.kafka.source.KafkaSource;
+import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
+import org.apache.flink.configuration.Configuration;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+
+public class KafkaToMySQLJob {
+
+    public static void main(String[] args) throws Exception {
+        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+
+        // Kafka Source
+        KafkaSource<String> source = KafkaSource.<String>builder()
+                .setBootstrapServers("localhost:9092")
+                .setTopics("aqi_topic")
+                .setGroupId("my-group")
+                .setStartingOffsets(OffsetsInitializer.earliest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
+
+        DataStreamSource<String> stream = env.fromSource(
+                source,
+                WatermarkStrategy.noWatermarks(),
+                "Kafka Source");
+
+        stream.print();
+
+        stream.addSink(new MySQLSink());
+
+        env.execute("Flink1.16.1 Kafka→MySQL");
+    }
+
+    public static class MySQLSink extends RichSinkFunction<String> {
+        private Connection conn;
+        private PreparedStatement ps;
+        private ObjectMapper objectMapper;
+
+        @Override
+        public void open(Configuration parameters) throws Exception {
+            super.open(parameters);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            conn = DriverManager.getConnection(
+                    "jdbc:mysql://192.168.31.15:3306/airdata?useSSL=false&serverTimezone=UTC",
+                    "root", "12345678");
+            ps = conn.prepareStatement(
+                    "INSERT INTO aqi_result (city, year, month, avg_month_AQI) VALUES (?, ?, ?, ?)");
+            objectMapper = new ObjectMapper();
+        }
+
+        @Override
+        public void invoke(String value, Context ctx) throws Exception {
+            try {
+                JsonNode jsonNode = objectMapper.readTree(value);
+                String city = jsonNode.get("city").asText();
+                int year = jsonNode.get("year").asInt();
+                int month = jsonNode.get("month").asInt();
+                double monthAQI = jsonNode.get("month_AQI").asDouble();
+
+                ps.setString(1, city);
+                ps.setInt(2, year);
+                ps.setInt(3, month);
+                ps.setDouble(4, monthAQI);
+                ps.executeUpdate();
+
+            } catch (java.sql.SQLIntegrityConstraintViolationException e) {
+                // 主键冲突，输出已存在信息
+                System.out.printf(
+                        "已存在：%s - 年: %d, 月: %d，跳过插入！\n",
+                        objectMapper.readTree(value).get("city").asText(),
+                        objectMapper.readTree(value).get("year").asInt(),
+                        objectMapper.readTree(value).get("month").asInt());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void close() throws Exception {
+            super.close();
+            if (ps != null)
+                ps.close();
+            if (conn != null)
+                conn.close();
+        }
+    }
+}

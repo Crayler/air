@@ -48,4 +48,4 @@ while True:
     cursor.close()
     conn.close()
 
-    time.sleep(5)  # 每 5 秒轮询一次
+    time.sleep(15)  # 每 5 秒轮询一次

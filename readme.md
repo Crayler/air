@@ -92,9 +92,12 @@ hiveserver2
 
 2、启动Kafka服务
     cd  /opt/kafka_2.12-3.4.1/
-    ./bin/kafka-server-start.sh  config/server.properties
+    ./bin/kafka-server-start.sh ./config/server.properties
 启动kafka消费者
     bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic aqi_topic --from-beginning
+
+启动flink
+  ./bin/start-cluster.sh
 
 
 ```
