@@ -11,6 +11,9 @@ class IndexView(generic.ListView):
     def get_queryset(self):
         return None
 
+def index(request):
+    return render(request,'index.html',{})
+
 def air(request):
     return render(request,'air.html',{})
 
@@ -67,7 +70,7 @@ def login(request):
                 request.session['is_login'] = True
                 messages.success(request, f'欢迎回来，{username}！')
                 # 重定向到首页或之前访问的页面
-                return render(request,'index.html')
+                return render(request,'index.html', {"username": username})
             else:
                 print("login error")
                 message =  '密码错误，请重新输入' 
