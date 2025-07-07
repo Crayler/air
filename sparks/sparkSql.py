@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.functions import row_number,mean,when, col, to_date, year, max, min, count, desc, month, avg, lag,monotonically_increasing_id
+from pyspark.sql.functions import row_number,mean,when, col,lit, to_date, year, max, min, count, desc, month, avg, lag,monotonically_increasing_id
 from pyspark.sql.window import Window
 
 # 初始化SparkSession
@@ -194,7 +194,7 @@ result9 = df.groupBy(
 # 添加自增id列
 window = Window.orderBy("city", "year", "month")
 result9 = result9.withColumn("id", row_number().over(window))
-
+result9 = result9.withColumn("processed", lit(0))
 # 写入 MySQL
 result9.write.jdbc(
     url="jdbc:mysql://192.168.31.15:3306/airdata",

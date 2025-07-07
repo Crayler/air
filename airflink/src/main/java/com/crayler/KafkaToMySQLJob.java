@@ -54,7 +54,7 @@ public class KafkaToMySQLJob {
                     "jdbc:mysql://192.168.31.15:3306/airdata?useSSL=false&serverTimezone=UTC",
                     "root", "12345678");
             ps = conn.prepareStatement(
-                    "INSERT INTO aqi_result (city, year, month, avg_month_AQI) VALUES (?, ?, ?, ?)");
+                    "INSERT INTO aqi_result (city, year, month, avg_month_AQI, updatetime) VALUES (?, ?, ?, ?, ?)");
             objectMapper = new ObjectMapper();
         }
 
@@ -66,7 +66,10 @@ public class KafkaToMySQLJob {
                 int year = jsonNode.get("year").asInt();
                 int month = jsonNode.get("month").asInt();
                 double monthAQI = jsonNode.get("month_AQI").asDouble();
-
+                String formattedAQI = String.format("%.2f", monthAQI);
+                double roundedAQI = Double.parseDouble(formattedAQI);
+                String updatetime = jsonNode.get("updatetime").asText();
+                
                 // 每条都删除（性能不佳，慎用）
                 try (PreparedStatement deleteStmt = conn.prepareStatement("DELETE FROM aqi_result WHERE city = ?")) {
                     deleteStmt.setString(1, city);
@@ -77,7 +80,8 @@ public class KafkaToMySQLJob {
                 ps.setString(1, city);
                 ps.setInt(2, year);
                 ps.setInt(3, month);
-                ps.setDouble(4, monthAQI);
+                ps.setDouble(4, roundedAQI);
+                ps.setString(5, updatetime);
                 ps.executeUpdate();
 
             } catch (Exception e) {

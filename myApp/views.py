@@ -150,7 +150,7 @@ def realtime(request):
 def get_latest_aqi(request):
     with connection.cursor() as cursor:
         cursor.execute(
-            "SELECT city, year, month, avg_month_AQI FROM aqi_result ORDER BY year DESC, month DESC LIMIT 1"
+            "SELECT city, year, month, avg_month_AQI FROM aqi_result WHERE updatetime = (SELECT MAX(updatetime) FROM aqi_result) LIMIT 1;"
         )
         row = cursor.fetchone()
 

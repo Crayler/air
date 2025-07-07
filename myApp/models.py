@@ -87,6 +87,7 @@ class TableData(models.Model):
     Co = models.FloatField(verbose_name="Co")
     O3 = models.FloatField(verbose_name="O3")
     id = models.AutoField("id",primary_key=True)
+    
 
     class Meta:
         db_table = 'airdata'

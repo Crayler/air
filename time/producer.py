@@ -5,6 +5,7 @@ from kafka import KafkaProducer
 import pymysql
 import json
 import time
+import datetime
 
 # 创建 Kafka Producer
 producer = KafkaProducer(
@@ -39,6 +40,8 @@ while True:
     else:
         for row in rows:
             # 发送到 Kafka
+            updatetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            row['updatetime'] = updatetime
             producer.send('aqi_topic', row)
             print('Produced:', row)
             # 标记为已处理
@@ -48,4 +51,4 @@ while True:
     cursor.close()
     conn.close()
 
-    time.sleep(15)  # 每 5 秒轮询一次
+    time.sleep(10)  # 每 5 秒轮询一次

@@ -101,16 +101,21 @@ python3 sparkHive.py
 2、启动Kafka服务
     cd  /opt/kafka_2.12-3.4.1/
     ./bin/kafka-server-start.sh ./config/server.properties
+
+要先删除kafka-data
+[root@xi001 opt]# rm -rf kafka-data/
+
   启动kafka消费者
     bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic aqi_topic --from-beginning
 
-启动flink
+<!-- 启动flink
   cd /opt/flink-1.16.1
   ./bin/start-cluster.sh
-  ./bin/sql-client.sh embedded -f /root/code/air/time/flink.sql -d
+  ./bin/sql-client.sh embedded -f /root/code/air/time/flink.sql -d -->
 
 ```
 进入到time 启动 python3 producer.py
 进入到airflink 启动 java
+
 
 
