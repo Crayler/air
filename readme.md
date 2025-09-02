@@ -115,8 +115,10 @@ python3 sparkHive.py
 # 页面效果
 ## 注册页面
 <img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/1febf8a0-b27a-4378-bfc0-d4622dc38394" />
+
 ## 登录页面
 <img width="510" height="259" alt="image" src="https://github.com/user-attachments/assets/a16b3ce0-1594-4036-8b4b-ea35387c100e" />
+
 ## 首页
 <img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/074beb0d-4d26-4d87-b512-79fe9dcd43e6" />
 ## 数据概览页面
