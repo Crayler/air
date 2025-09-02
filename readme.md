@@ -113,14 +113,22 @@ python3 sparkHive.py
 进入到time 启动 python3 producer.py
 进入到airflink 启动 java
 
-注册页面<img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/1febf8a0-b27a-4378-bfc0-d4622dc38394" />
-登录页面<img width="510" height="259" alt="image" src="https://github.com/user-attachments/assets/a16b3ce0-1594-4036-8b4b-ea35387c100e" />
-首页<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/074beb0d-4d26-4d87-b512-79fe9dcd43e6" />
-数据概览<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/be7a0f7c-be10-49c1-99e5-b11e6dc9276b" />
-城市空气质量排行<img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/b1554408-d238-4d66-b755-87d524843f5b" />
-O3 与 CO 污染物分类统计<img width="476" height="242" alt="image" src="https://github.com/user-attachments/assets/18870b77-a080-4014-b48e-c040bf676823" />
-年度污染分析<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/6f112e01-f3f8-4f8d-931b-88c8be6243b8" />
-实时监控<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/9e6bfce5-36ec-48a4-a1ed-011e798fea9f" />
-预测<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/69587e12-386a-422d-8d63-0e69d7a0af7b" />
-<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/3b40c189-589d-4f4a-8200-3e7bef3e5d94" />
+注册页面
+<img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/1febf8a0-b27a-4378-bfc0-d4622dc38394" />
+登录页面
+<img width="510" height="259" alt="image" src="https://github.com/user-attachments/assets/a16b3ce0-1594-4036-8b4b-ea35387c100e" />
+首页
+<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/074beb0d-4d26-4d87-b512-79fe9dcd43e6" />
+数据概览页面
+<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/be7a0f7c-be10-49c1-99e5-b11e6dc9276b" />
+城市空气质量排行页面
+<img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/b1554408-d238-4d66-b755-87d524843f5b" />
+O3 与 CO 污染物分类统计页面
+<img width="476" height="242" alt="image" src="https://github.com/user-attachments/assets/18870b77-a080-4014-b48e-c040bf676823" />
+年度污染分析页面
+<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/6f112e01-f3f8-4f8d-931b-88c8be6243b8" />
+实时监控页面
+<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/9e6bfce5-36ec-48a4-a1ed-011e798fea9f" />
+预测页面
+<img width="555" height="282" alt="image" src="https://github.com/user-attachments/assets/69587e12-386a-422d-8d63-0e69d7a0af7b" />
 
