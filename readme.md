@@ -114,6 +114,8 @@ python3 sparkHive.py
 进入到airflink 启动 java
 # 页面效果
 ## 注册页面
+![Uploading 1.png…]()
+
 <img width="502" height="254" alt="image" src="https://github.com/user-attachments/assets/1febf8a0-b27a-4378-bfc0-d4622dc38394" />
 
 ## 登录页面
