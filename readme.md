@@ -95,7 +95,7 @@ python3 sparkHive.py
 ## 实时
 ```bash
 1、启动Zookeeper服务
-    cd  /opt/kafka_2.12-3.4.1/ 
+    cd /opt/kafka_2.12-3.4.1/ 
     ./bin/zookeeper-server-start.sh ./config/zookeeper.properties
 
 2、启动Kafka服务
@@ -117,5 +117,49 @@ python3 sparkHive.py
 进入到time 启动 python3 producer.py
 进入到airflink 启动 java
 
+
+
+## 启动步骤
+``` 
+根据位置要修改数据库IP地址
+实验楼：172.20.10.2
+寝室：192.168.31.15
+
+1、start-all.sh
+2、service mysqld start  启动 mysql 服务
+  ps -ef | grep mysql  查看mysql 服务是否启动
+  mysql -u root -p
+3、启动hive
+  hive --service metastore
+  hiveserver2
+  hive
+    或者(!connect jdbc:hive2://192.168.100.100:10000/default
+    用户名hive  密码123456)
+4、启动Zookeeper服务
+    cd /opt/kafka_2.12-3.4.1/ 
+    ./bin/zookeeper-server-start.sh ./config/zookeeper.properties
+5、、启动Kafka服务
+    cd  /opt/kafka_2.12-3.4.1/
+    ./bin/kafka-server-start.sh ./config/server.properties
+
+要先删除kafka-data
+[root@xi001 opt]# rm -rf kafka-data/
+
+  启动kafka消费者
+    bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic aqi_topic --from-beginning
+
+6、django 启动命令
+python3 manage.py runserver 0.0.0.0:8000
+
+
+7、启动flink
+  cd /opt/flink-1.16.1
+  ./bin/start-cluster.sh
+  ./bin/sql-client.sh embedded -f /root/code/air/time/flink.sql -d
+
+进入到time 启动 python3 producer.py
+进入到airflink 启动 java
+
+  
 
 

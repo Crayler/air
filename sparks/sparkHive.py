@@ -18,7 +18,7 @@ connectionProperties = {
 
 # 从MySQL中读取数据
 df = spark.read.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="airdata",
     properties=connectionProperties
 )

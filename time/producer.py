@@ -15,7 +15,7 @@ producer = KafkaProducer(
 
 # 数据库连接配置
 DB_CONFIG = {
-    'host': '192.168.31.15',
+    'host': '172.20.10.2',
     'user': 'root',
     'password': '12345678',
     'db': 'airdata',

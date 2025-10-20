@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'airdata',
         'USER':'root',
         'PASSWORD':'12345678',
-        "HOST":"192.168.31.15",
+        "HOST":"172.20.10.2",
         "PORT":"3306"
 
     }

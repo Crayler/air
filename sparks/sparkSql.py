@@ -18,7 +18,7 @@ connectionProperties = {
 
 # 从MySQL中读取数据
 df = spark.read.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="airdata",
     properties=connectionProperties
 )
@@ -32,7 +32,7 @@ result1 = df.groupBy("city")\
 
 # 写入分析结果到数据库
 result1.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="one",
     mode="overwrite",
     properties=connectionProperties
@@ -53,7 +53,7 @@ result2 = df.groupBy("city")\
 
 # 写入分析结果到数据库
 result2.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="two",
     mode="overwrite",
     properties=connectionProperties
@@ -69,7 +69,7 @@ result3 = df.groupBy("city",year("date").alias("year"),month("date").alias("mont
 
 # 写入分析结果到数据库
 result3.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="three",
     mode="overwrite",
     properties=connectionProperties
@@ -92,7 +92,7 @@ result4 = result4.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result4.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="four",
     mode="overwrite",
     properties=connectionProperties
@@ -108,7 +108,7 @@ result5 = df.groupBy("city",year("date").alias("year"),month("date").alias("mont
 
 # 写入分析结果到数据库
 result5.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="five",
     mode="overwrite",
     properties=connectionProperties
@@ -125,7 +125,7 @@ result6 = df.groupBy("city") \
 
 # 写入分析结果到数据库
 result6.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="six",
     mode="overwrite",
     properties=connectionProperties
@@ -150,7 +150,7 @@ result7 = result7.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result7.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="seven",
     mode="overwrite",
     properties=connectionProperties
@@ -175,7 +175,7 @@ result8 = result8.withColumn("id", row_number().over(window))
 
 # 写入MySQL
 result8.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="eight",
     mode="overwrite",
     properties=connectionProperties
@@ -197,7 +197,7 @@ result9 = result9.withColumn("id", row_number().over(window))
 result9 = result9.withColumn("processed", lit(0))
 # 写入 MySQL
 result9.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="nine",
     mode="overwrite",
     properties=connectionProperties
@@ -219,7 +219,7 @@ rank_trend.createOrReplaceTempView("rank_analysis")
 
 # 写入分析结果到数据库
 rank_trend.write.jdbc(
-    url="jdbc:mysql://192.168.31.15:3306/airdata",
+    url="jdbc:mysql://172.20.10.2:3306/airdata",
     table="rank_analysis",
     mode="overwrite",
     properties=connectionProperties
