@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('count_grate', models.IntegerField()),
             ],
             options={
-                'db_table': 'five',
+                'db_table': 'rank_day_data',
                 'managed': False,
             },
         ),
@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
                 ('min_PM10', models.FloatField()),
             ],
             options={
-                'db_table': 'four',
+                'db_table': 'year_data',
                 'managed': False,
             },
         ),
@@ -47,7 +47,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='id')),
             ],
             options={
-                'db_table': 'seven',
+                'db_table': 'co_category_data',
             },
         ),
         migrations.CreateModel(
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(primary_key=True, serialize=False, verbose_name='id')),
             ],
             options={
-                'db_table': 'eight',
+                'db_table': 'o3_category_data',
             },
         ),
         migrations.CreateModel(

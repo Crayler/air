@@ -3,7 +3,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-
+# 爬取天气数据
 class AqiSpider:
     def __init__(self,cityname,realname):
         self.cityname = cityname
@@ -11,7 +11,7 @@ class AqiSpider:
         self.headers = {
             "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36 Edg/137.0.0.0"
         }
-        self.f = open(f'data.csv','a',encoding='utf-8-sig',newline='')
+        self.f = open(f'data_new.csv','a',encoding='utf-8-sig',newline='')
         self.write = csv.DictWriter(self.f,fieldnames=[
             'city',
             'date',
@@ -78,9 +78,6 @@ class AqiSpider:
         #存储
         # print('存入')
         self.write.writerow(data_dict)
-
-
-
 
     def run(self):
         for month in range(1,13):

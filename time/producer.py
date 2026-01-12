@@ -15,7 +15,7 @@ producer = KafkaProducer(
 
 # 数据库连接配置
 DB_CONFIG = {
-    'host': '172.20.10.2',
+    'host': '192.168.1.10',
     'user': 'root',
     'password': '12345678',
     'db': 'airdata',
@@ -51,4 +51,4 @@ while True:
     cursor.close()
     conn.close()
 
-    time.sleep(10)  # 每 5 秒轮询一次
+    time.sleep(5)  # 每 5 秒轮询一次

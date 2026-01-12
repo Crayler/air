@@ -18,65 +18,65 @@ connectionProperties = {
 
 # 从MySQL中读取数据
 df = spark.read.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
     table="airdata",
     properties=connectionProperties
 )
 
 
 
-# 需求分析1：城市平均AQI
-result1 = df.groupBy("city")\
-    .agg(mean("AQI").alias("avg_AQI"))\
-    .orderBy("avg_AQI",ascending=False)
+# 需求分析1：各城市平均 AQI（降序排列）
+# result1 = df.groupBy("city")\
+#     .agg(mean("AQI").alias("avg_AQI"))\
+#     .orderBy("avg_AQI",ascending=False)
 
-# 写入分析结果到数据库
-result1.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="one",
-    mode="overwrite",
-    properties=connectionProperties
-)
-
-
-
-# 需求分析2：个气体
-result2 = df.groupBy("city")\
-    .agg(
-        mean("PM").alias("avg_PM"),
-        mean("PM10").alias("avg_PM10"),
-        mean("So2").alias("avg_So2"),
-        mean("No2").alias("avg_No2"),
-        mean("Co").alias("avg_Co"),
-        mean("O3").alias("O3"),
-        )
-
-# 写入分析结果到数据库
-result2.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="two",
-    mode="overwrite",
-    properties=connectionProperties
-)
-
-# 需求分析3:年度空气质量分析
-df = df.withColumn("date", df["date"].cast("date"))
-result3 = df.groupBy("city",year("date").alias("year"),month("date").alias("month")) \
-    .agg(
-        max("AQI").alias("max_AQI"),
-        min("AQI").alias("min_AQI")
-    )
-
-# 写入分析结果到数据库
-result3.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="three",
-    mode="overwrite",
-    properties=connectionProperties
-)
+# # 写入分析结果到数据库
+# result1.write.jdbc(
+#     url="jdbc:mysql://192.168.1.10:3306/airdata",
+#     table="one",
+#     mode="overwrite",
+#     properties=connectionProperties
+# )
 
 
-# 需求分析4:年度空气质量分析
+
+# # 需求分析2：各城市各类污染物均值
+# result2 = df.groupBy("city")\
+#     .agg(
+#         mean("PM").alias("avg_PM"),
+#         mean("PM10").alias("avg_PM10"),
+#         mean("So2").alias("avg_So2"),
+#         mean("No2").alias("avg_No2"),
+#         mean("Co").alias("avg_Co"),
+#         mean("O3").alias("O3"),
+#         )
+
+# # 写入分析结果到数据库
+# result2.write.jdbc(
+#     url="jdbc:mysql://192.168.1.10:3306/airdata",
+#     table="two",
+#     mode="overwrite",
+#     properties=connectionProperties
+# )
+
+# # 需求分析3:年度空气质量分析（各城市分年月的 AQI 极值）
+# df = df.withColumn("date", df["date"].cast("date"))
+# result3 = df.groupBy("city",year("date").alias("year"),month("date").alias("month")) \
+#     .agg(
+#         max("AQI").alias("max_AQI"),
+#         min("AQI").alias("min_AQI")
+#     )
+
+# # 写入分析结果到数据库
+# result3.write.jdbc(
+#     url="jdbc:mysql://192.168.1.10:3306/airdata",
+#     table="three",
+#     mode="overwrite",
+#     properties=connectionProperties
+# )
+
+
+# 需求分析4:年度空气质量分析（各城市分年月的 PM/PM10 均值（加自增 ID)）
 result4 = df.groupBy(
     "city",
     year("date").alias("year"),
@@ -92,15 +92,15 @@ result4 = result4.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result4.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="four",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    table="year_data",
     mode="overwrite",
     properties=connectionProperties
 )
 
 
 
-# 需求分析5:
+# 需求分析5:各城市分年月 AQI<50 的天数（优级天数）
 result5 = df.groupBy("city",year("date").alias("year"),month("date").alias("month")) \
     .agg(
         count(when(df["AQI"]<50,True).alias("greatAir")).alias("count_grate")
@@ -108,31 +108,31 @@ result5 = df.groupBy("city",year("date").alias("year"),month("date").alias("mont
 
 # 写入分析结果到数据库
 result5.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="five",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    table="rank_day_data",
     mode="overwrite",
     properties=connectionProperties
 )
 
 
 
-# 需求分析6:
-result6 = df.groupBy("city") \
-    .agg(
-        max("So2").alias("max_So2"),
-        max("No2").alias("max_No2")
-    )
+# # 需求分析6:各城市 So2/No2 的最大值
+# result6 = df.groupBy("city") \
+#     .agg(
+#         max("So2").alias("max_So2"),
+#         max("No2").alias("max_No2")
+#     )
 
-# 写入分析结果到数据库
-result6.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="six",
-    mode="overwrite",
-    properties=connectionProperties
-)
+# # 写入分析结果到数据库
+# result6.write.jdbc(
+#     url="jdbc:mysql://192.168.1.10:3306/airdata",
+#     table="six",
+#     mode="overwrite",
+#     properties=connectionProperties
+# )
 
 
-# 需求分析7:
+# 需求分析7:CO 浓度分类统计（按区间计数）
 df = df.withColumn(
     "Co_category",
     when((col("Co") >= 0) & (col("Co") < 0.25), '0-0.25')
@@ -150,14 +150,14 @@ result7 = result7.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result7.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="seven",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    table="co_category_data",
     mode="overwrite",
     properties=connectionProperties
 )
 
 
-# 需求分析8:
+# 需求分析8: O3浓度分类统计（同 CO 逻辑）
 df = df.withColumn(
     "O3_category",
     when((col("O3") >= 0) & (col("O3") < 25), '0-25')
@@ -175,14 +175,14 @@ result8 = result8.withColumn("id", row_number().over(window))
 
 # 写入MySQL
 result8.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
-    table="eight",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    table="o3_category_data",
     mode="overwrite",
     properties=connectionProperties
 )
 
 
-# 需求分析9:
+# 需求分析9:各城市分年月的 AQI 均值（加标识列）
 result9 = df.groupBy(
     "city",
     year("date").alias("year"),
@@ -197,7 +197,7 @@ result9 = result9.withColumn("id", row_number().over(window))
 result9 = result9.withColumn("processed", lit(0))
 # 写入 MySQL
 result9.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
     table="nine",
     mode="overwrite",
     properties=connectionProperties
@@ -219,7 +219,7 @@ rank_trend.createOrReplaceTempView("rank_analysis")
 
 # 写入分析结果到数据库
 rank_trend.write.jdbc(
-    url="jdbc:mysql://172.20.10.2:3306/airdata",
+    url="jdbc:mysql://192.168.1.10:3306/airdata",
     table="rank_analysis",
     mode="overwrite",
     properties=connectionProperties

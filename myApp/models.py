@@ -12,17 +12,15 @@ class User(models.Model):
     class Meta:
         db_table = 'user'
 
-# 优秀天数
+# 空气质量排行的优秀天数
 class AirQuality(models.Model):
-
     city = models.CharField(max_length=100, primary_key=True)
     year = models.IntegerField()
     month = models.IntegerField()
     count_grate= models.IntegerField()
 
-
     class Meta:
-        db_table = 'five'
+        db_table = 'rank_day_data'
         #managed = False  # 表已存在，不让 Django 自动迁移   
 
      
@@ -35,7 +33,7 @@ class YearAirQuality(models.Model):
     min_PM10 = models.FloatField()
 
     class Meta:
-        db_table = 'four'
+        db_table = 'year_data'
         #managed = False
 
     def __str__(self):
@@ -51,7 +49,7 @@ class O3Category(models.Model):
     
 
     class Meta:
-        db_table = 'eight'
+        db_table = 'o3_category_data'
 
     def __str__(self):
         return self.category
@@ -63,7 +61,7 @@ class CoCategory(models.Model):
     id = models.AutoField("id",primary_key=True)
 
     class Meta:
-        db_table = 'seven'
+        db_table = 'co_category_data'
 
 
     def __str__(self):
