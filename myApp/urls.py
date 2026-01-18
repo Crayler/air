@@ -16,6 +16,9 @@ urlpatterns = [
     path('table/', views.table,name= 'table'),
     path('air/', views.air,name= 'air'),
     path('get_latest_aqi/', views.get_latest_aqi, name='get_latest_aqi'),
+    path('AI/', views.AI,name= 'AI'),
+    path('ai_chat/', views.ai_chat, name='ai_chat'),
+    path('get_trend_data/', views.get_trend_data, name='get_trend_data'),
 
-   
+
 ]

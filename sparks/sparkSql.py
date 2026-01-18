@@ -9,6 +9,7 @@ spark = SparkSession.builder \
     .appName("AirQualityAnalysis") \
     .getOrCreate()
 
+mysql_url="jdbc:mysql://192.168.1.7:3306/airdata",
 # 数据库连接属性
 connectionProperties = {
     "user": "root",
@@ -18,62 +19,10 @@ connectionProperties = {
 
 # 从MySQL中读取数据
 df = spark.read.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="airdata",
     properties=connectionProperties
 )
-
-
-
-# 需求分析1：各城市平均 AQI（降序排列）
-# result1 = df.groupBy("city")\
-#     .agg(mean("AQI").alias("avg_AQI"))\
-#     .orderBy("avg_AQI",ascending=False)
-
-# # 写入分析结果到数据库
-# result1.write.jdbc(
-#     url="jdbc:mysql://192.168.1.10:3306/airdata",
-#     table="one",
-#     mode="overwrite",
-#     properties=connectionProperties
-# )
-
-
-
-# # 需求分析2：各城市各类污染物均值
-# result2 = df.groupBy("city")\
-#     .agg(
-#         mean("PM").alias("avg_PM"),
-#         mean("PM10").alias("avg_PM10"),
-#         mean("So2").alias("avg_So2"),
-#         mean("No2").alias("avg_No2"),
-#         mean("Co").alias("avg_Co"),
-#         mean("O3").alias("O3"),
-#         )
-
-# # 写入分析结果到数据库
-# result2.write.jdbc(
-#     url="jdbc:mysql://192.168.1.10:3306/airdata",
-#     table="two",
-#     mode="overwrite",
-#     properties=connectionProperties
-# )
-
-# # 需求分析3:年度空气质量分析（各城市分年月的 AQI 极值）
-# df = df.withColumn("date", df["date"].cast("date"))
-# result3 = df.groupBy("city",year("date").alias("year"),month("date").alias("month")) \
-#     .agg(
-#         max("AQI").alias("max_AQI"),
-#         min("AQI").alias("min_AQI")
-#     )
-
-# # 写入分析结果到数据库
-# result3.write.jdbc(
-#     url="jdbc:mysql://192.168.1.10:3306/airdata",
-#     table="three",
-#     mode="overwrite",
-#     properties=connectionProperties
-# )
 
 
 # 需求分析4:年度空气质量分析（各城市分年月的 PM/PM10 均值（加自增 ID)）
@@ -92,7 +41,7 @@ result4 = result4.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result4.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="year_data",
     mode="overwrite",
     properties=connectionProperties
@@ -108,29 +57,11 @@ result5 = df.groupBy("city",year("date").alias("year"),month("date").alias("mont
 
 # 写入分析结果到数据库
 result5.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="rank_day_data",
     mode="overwrite",
     properties=connectionProperties
 )
-
-
-
-# # 需求分析6:各城市 So2/No2 的最大值
-# result6 = df.groupBy("city") \
-#     .agg(
-#         max("So2").alias("max_So2"),
-#         max("No2").alias("max_No2")
-#     )
-
-# # 写入分析结果到数据库
-# result6.write.jdbc(
-#     url="jdbc:mysql://192.168.1.10:3306/airdata",
-#     table="six",
-#     mode="overwrite",
-#     properties=connectionProperties
-# )
-
 
 # 需求分析7:CO 浓度分类统计（按区间计数）
 df = df.withColumn(
@@ -150,7 +81,7 @@ result7 = result7.withColumn("id", row_number().over(window))
 
 # 写入分析结果到数据库
 result7.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="co_category_data",
     mode="overwrite",
     properties=connectionProperties
@@ -175,7 +106,7 @@ result8 = result8.withColumn("id", row_number().over(window))
 
 # 写入MySQL
 result8.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="o3_category_data",
     mode="overwrite",
     properties=connectionProperties
@@ -197,7 +128,7 @@ result9 = result9.withColumn("id", row_number().over(window))
 result9 = result9.withColumn("processed", lit(0))
 # 写入 MySQL
 result9.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="nine",
     mode="overwrite",
     properties=connectionProperties
@@ -219,7 +150,7 @@ rank_trend.createOrReplaceTempView("rank_analysis")
 
 # 写入分析结果到数据库
 rank_trend.write.jdbc(
-    url="jdbc:mysql://192.168.1.10:3306/airdata",
+    url=mysql_url,
     table="rank_analysis",
     mode="overwrite",
     properties=connectionProperties

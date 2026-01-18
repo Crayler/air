@@ -43,7 +43,7 @@ df = df.withColumn("id",monotonically_increasing_id())
 
 # Show the data in the DataFrame
 
-df.write.jdbc(url="jdbc:mysql://192.168.1.10:3306/airdata"
+df.write.jdbc(url="jdbc:mysql://192.168.1.7:3306/airdata"
                 "?user=root&password=12345678&useUnicode=true&characterEncoding=UTF-8",
             mode="overwrite",
             table="airdata",

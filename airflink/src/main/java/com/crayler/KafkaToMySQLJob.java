@@ -51,7 +51,7 @@ public class KafkaToMySQLJob {
             super.open(parameters);
             Class.forName("com.mysql.cj.jdbc.Driver");
             conn = DriverManager.getConnection(
-                    "jdbc:mysql://192.168.1.10:3306/airdata?useSSL=false&serverTimezone=UTC",
+                    "jdbc:mysql://192.168.1.7:3306/airdata?useSSL=false&serverTimezone=UTC",
                     "root", "12345678");
             ps = conn.prepareStatement(
                     "INSERT INTO aqi_result (city, year, month, avg_month_AQI, updatetime) VALUES (?, ?, ?, ?, ?)");
