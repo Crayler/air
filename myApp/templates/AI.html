@@ -3,10 +3,120 @@
 {% block base %}
 {% load static %}
 
-<!-- Tailwind CSS CDN -->
+<!-- Tailwind CSS CDN with scoped application -->
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+    // Configure Tailwind to avoid conflicts
+    tailwind.config = {
+        important: '.tailwind-scope',  // Only apply Tailwind inside .tailwind-scope
+        corePlugins: {
+            preflight: false,  // Disable Tailwind's base reset
+        }
+    }
+</script>
+
+<!-- Marked.js for Markdown rendering -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
 <style>
+    /* Protect all Bootstrap/Feather elements from Tailwind */
+    img, svg, button, a, .navbar-header, .navbar-header * {
+        max-width: none !important;
+    }
+
+    /* Ensure logo images maintain their size */
+    .navbar-brand-box img {
+        height: 24px !important;
+        width: auto !important;
+    }
+
+    /* Force feather icons to correct size everywhere */
+    [data-feather],
+    .feather,
+    [data-feather] svg,
+    .icon-lg {
+        width: 20px !important;
+        height: 20px !important;
+        stroke: currentColor !important;
+        stroke-width: 2 !important;
+        stroke-linecap: round !important;
+        stroke-linejoin: round !important;
+        fill: none !important;
+    }
+
+    /* Markdown styling in chat messages */
+    .message-content {
+        line-height: 1.6;
+    }
+
+    .message-content h1,
+    .message-content h2,
+    .message-content h3 {
+        font-weight: 600;
+        margin-top: 0.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .message-content h1 { font-size: 1.5em; }
+    .message-content h2 { font-size: 1.3em; }
+    .message-content h3 { font-size: 1.1em; }
+
+    .message-content p {
+        margin-bottom: 0.5em;
+    }
+
+    .message-content ul,
+    .message-content ol {
+        margin-left: 1.5em;
+        margin-bottom: 0.5em;
+    }
+
+    .message-content li {
+        margin-bottom: 0.25em;
+    }
+
+    .message-content code {
+        background-color: rgba(0, 0, 0, 0.05);
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: monospace;
+        font-size: 0.9em;
+    }
+
+    .message-content pre {
+        background-color: rgba(0, 0, 0, 0.05);
+        padding: 0.8em;
+        border-radius: 5px;
+        overflow-x: auto;
+        margin-bottom: 0.5em;
+    }
+
+    .message-content pre code {
+        background-color: transparent;
+        padding: 0;
+    }
+
+    .message-content blockquote {
+        border-left: 3px solid rgba(0, 0, 0, 0.2);
+        padding-left: 1em;
+        margin-left: 0;
+        margin-bottom: 0.5em;
+        color: rgba(0, 0, 0, 0.7);
+    }
+
+    .message-content a {
+        color: #3b82f6;
+        text-decoration: underline;
+    }
+
+    .message-content strong {
+        font-weight: 600;
+    }
+
+    .message-content em {
+        font-style: italic;
+    }
+
     /* Minimal animations */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
@@ -30,6 +140,7 @@
     .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 </style>
 
+<div class="tailwind-scope">
 <div class="container mx-auto px-4 py-5">
     <!-- 页面标题 -->
     <div class="mb-6 pb-5 border-b border-gray-200">
@@ -39,25 +150,38 @@
 
     <!-- 主布局 -->
     <div class="max-w-5xl mx-auto">
-                <!-- 天气信息卡片 -->
-        <div class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg p-5 text-white shadow-md hidden" id="weather-card">
-            <div class="text-4xl text-center mb-3">🌤️</div>
-            <div class="text-center mb-4">
-                <div class="text-xl font-semibold mb-1" id="weather-main">--</div>
-                <div class="text-3xl font-bold" id="weather-temp">--℃</div>
+        <!-- 天气信息卡片组 -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6" id="weather-cards" style="display: none;">
+            <!-- 主要天气卡片 -->
+            <div class="md:col-span-2 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl shadow-lg p-5 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="text-5xl mb-2">🌤️</div>
+                        <div class="text-lg font-medium opacity-90 mb-1" id="weather-main">--</div>
+                        <div class="text-4xl font-bold" id="weather-temp">--℃</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm opacity-80 mb-1">📍</div>
+                        <div class="text-xl font-semibold" id="weather-city">--</div>
+                    </div>
+                </div>
             </div>
-            <div class="flex justify-around pt-3 border-t border-white border-opacity-30">
+
+            <!-- 风力卡片 -->
+            <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+                <div class="text-4xl mb-3 text-center">💨</div>
                 <div class="text-center">
-                    <span class="block text-xs opacity-90 mb-1">城市</span>
-                    <span class="block text-base font-semibold" id="weather-city">--</span>
+                    <div class="text-xs text-gray-500 mb-2">风力情况</div>
+                    <div class="text-lg font-semibold text-gray-800" id="weather-wind">--</div>
                 </div>
+            </div>
+
+            <!-- 湿度卡片 -->
+            <div class="bg-white rounded-xl shadow-lg p-5 border border-gray-200">
+                <div class="text-4xl mb-3 text-center">💧</div>
                 <div class="text-center">
-                    <span class="block text-xs opacity-90 mb-1">风力</span>
-                    <span class="block text-base font-semibold" id="weather-wind">--</span>
-                </div>
-                <div class="text-center">
-                    <span class="block text-xs opacity-90 mb-1">湿度</span>
-                    <span class="block text-base font-semibold" id="weather-humidity">--%</span>
+                    <div class="text-xs text-gray-500 mb-2">空气湿度</div>
+                    <div class="text-lg font-semibold text-gray-800" id="weather-humidity">--%</div>
                 </div>
             </div>
         </div>
@@ -76,7 +200,7 @@
             <!-- Messages Area -->
             <div class="flex-1 overflow-y-auto p-5 bg-gray-50" id="messages">
                 <div class="flex mb-4 animate-fade-in">
-                    <div class="max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed whitespace-pre-line">
+                    <div class="max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed message-content">
 👋 您好！我是空气质量智能助手。
 
 我可以帮您：
@@ -111,11 +235,20 @@
 
     </div>
 </div>
+</div>
 
 <script>
     let currentCity = null;
 
     document.addEventListener('DOMContentLoaded', () => {
+        // Configure marked.js if available
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true
+            });
+        }
+
         const citySelect = document.getElementById('city-select');
         if (citySelect && citySelect.value) {
             currentCity = citySelect.value;
@@ -211,10 +344,22 @@
             : 'flex mb-4 animate-fade-in';
 
         const bubbleClass = type === 'user'
-            ? 'max-w-3/4 px-4 py-3 rounded-lg bg-blue-500 text-white text-sm leading-relaxed whitespace-pre-line'
-            : 'max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed whitespace-pre-line';
+            ? 'max-w-3/4 px-4 py-3 rounded-lg bg-blue-500 text-white text-sm leading-relaxed message-content'
+            : 'max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed message-content';
 
-        messageDiv.innerHTML = `<div class="${bubbleClass}">${escapeHtml(text)}</div>`;
+        // Render markdown for AI messages if marked is available, otherwise use plain text with line breaks
+        let content;
+        if (type === 'ai') {
+            if (typeof marked !== 'undefined') {
+                content = marked.parse(text);
+            } else {
+                content = escapeHtml(text).replace(/\n/g, '<br>');
+            }
+        } else {
+            content = escapeHtml(text).replace(/\n/g, '<br>');
+        }
+
+        messageDiv.innerHTML = `<div class="${bubbleClass}">${content}</div>`;
         messagesDiv.appendChild(messageDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -235,16 +380,24 @@
     }
 
     function updateDataPanel(data) {
+        console.log('updateDataPanel called with:', data);
         // 更新天气信息
         if (data.weather) {
-            const weatherCard = document.getElementById('weather-card');
-            weatherCard.classList.remove('hidden');
+            const weatherCards = document.getElementById('weather-cards');
+            if (weatherCards) {
+                weatherCards.style.display = 'grid';
+                console.log('Weather cards displayed');
 
-            document.getElementById('weather-city').textContent = data.city || currentCity;
-            document.getElementById('weather-main').textContent = data.weather.weather;
-            document.getElementById('weather-temp').textContent = data.weather.temperature + '℃';
-            document.getElementById('weather-wind').textContent = data.weather.winddirection + '风 ' + data.weather.windpower + '级';
-            document.getElementById('weather-humidity').textContent = data.weather.humidity + '%';
+                document.getElementById('weather-city').textContent = data.city || currentCity;
+                document.getElementById('weather-main').textContent = data.weather.weather;
+                document.getElementById('weather-temp').textContent = data.weather.temperature + '℃';
+                document.getElementById('weather-wind').textContent = data.weather.winddirection + '风 ' + data.weather.windpower + '级';
+                document.getElementById('weather-humidity').textContent = data.weather.humidity + '%';
+            } else {
+                console.error('weather-cards element not found');
+            }
+        } else {
+            console.log('No weather data in response');
         }
     }
 
