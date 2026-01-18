@@ -3,416 +3,80 @@
 {% block base %}
 {% load static %}
 
+<!-- Tailwind CSS CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+
 <style>
-    /* 重置一些base.html的样式 */
-    .page-content {
-        padding: 20px !important;
-    }
-
-    /* AI聊天容器 */
-    .ai-container {
-        max-width: 100%;
-        margin: 0 auto;
-    }
-
-    /* 页面标题 */
-    .page-title-box {
-        padding-bottom: 20px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #eff2f7;
-    }
-
-    .page-title {
-        font-size: 24px;
-        font-weight: 600;
-        color: #495057;
-        margin: 0;
-    }
-
-    .page-title-desc {
-        color: #74788d;
-        font-size: 14px;
-        margin-top: 5px;
-    }
-
-    /* 主布局 */
-    .ai-main-layout {
-        display: grid;
-        grid-template-columns: 1fr 380px;
-        gap: 24px;
-    }
-
-    /* 聊天卡片 */
-    .chat-card {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 200px);
-        min-height: 600px;
-    }
-
-    .chat-header {
-        padding: 20px;
-        border-bottom: 1px solid #eff2f7;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .chat-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #495057;
-        margin: 0;
-    }
-
-    .city-select {
-        padding: 6px 12px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 14px;
-        color: #495057;
-        background: #fff;
-        cursor: pointer;
-    }
-
-    .city-select:focus {
-        border-color: #556ee6;
-        outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(85,110,230,.25);
-    }
-
-    /* 消息区域 */
-    .messages-wrapper {
-        flex: 1;
-        overflow-y: auto;
-        padding: 20px;
-        background: #f8f9fa;
-    }
-
-    .message {
-        margin-bottom: 16px;
-        display: flex;
-        animation: fadeIn 0.3s ease-in;
-    }
-
+    /* Minimal animations */
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
     }
-
-    .message.user {
-        justify-content: flex-end;
-    }
-
-    .message-bubble {
-        max-width: 75%;
-        padding: 12px 16px;
-        border-radius: 8px;
-        word-wrap: break-word;
-        white-space: pre-line;
-        font-size: 14px;
-        line-height: 1.6;
-    }
-
-    .message.ai .message-bubble {
-        background: #fff;
-        border: 1px solid #e3e6ef;
-        color: #495057;
-    }
-
-    .message.user .message-bubble {
-        background: #556ee6;
-        color: #fff;
-    }
-
-    /* 快捷操作 */
-    .quick-actions {
-        padding: 12px 20px;
-        border-top: 1px solid #eff2f7;
-        background: #fff;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-    }
-
-    .quick-btn {
-        padding: 6px 12px;
-        background: #f8f9fa;
-        border: 1px solid #e3e6ef;
-        border-radius: 4px;
-        font-size: 13px;
-        color: #74788d;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .quick-btn:hover {
-        background: #556ee6;
-        color: #fff;
-        border-color: #556ee6;
-    }
-
-    /* 输入区域 */
-    .input-wrapper {
-        padding: 20px;
-        border-top: 1px solid #eff2f7;
-        background: #fff;
-        display: flex;
-        gap: 12px;
-    }
-
-    .message-input {
-        flex: 1;
-        padding: 10px 16px;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 14px;
-        color: #495057;
-    }
-
-    .message-input:focus {
-        border-color: #556ee6;
-        outline: none;
-        box-shadow: 0 0 0 0.2rem rgba(85,110,230,.25);
-    }
-
-    .send-btn {
-        padding: 10px 24px;
-        background: #556ee6;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .send-btn:hover:not(:disabled) {
-        background: #4a5fc1;
-    }
-
-    .send-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-    }
-
-    /* 数据面板 */
-    .data-card {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        padding: 24px;
-        height: calc(100vh - 200px);
-        min-height: 600px;
-        overflow-y: auto;
-    }
-
-    .data-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 20px;
-    }
-
-    /* AQI显示卡片 */
-    .aqi-card {
-        text-align: center;
-        padding: 24px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 8px;
-        color: #fff;
-        margin-bottom: 16px;
-    }
-
-    .aqi-value {
-        font-size: 48px;
-        font-weight: bold;
-        margin-bottom: 8px;
-    }
-
-    .aqi-label {
-        font-size: 18px;
-        font-weight: 500;
-        opacity: 0.95;
-    }
-
-    .aqi-time {
-        font-size: 12px;
-        opacity: 0.8;
-        margin-top: 8px;
-    }
-
-    /* 天气卡片 */
-    .weather-card {
-        background: linear-gradient(135deg, #56CCF2 0%, #2F80ED 100%);
-        border-radius: 8px;
-        padding: 20px;
-        color: #fff;
-        margin-bottom: 16px;
-    }
-
-    .weather-icon {
-        font-size: 40px;
-        text-align: center;
-        margin-bottom: 12px;
-    }
-
-    .weather-info {
-        text-align: center;
-        margin-bottom: 16px;
-    }
-
-    .weather-main {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .weather-temp {
-        font-size: 32px;
-        font-weight: bold;
-    }
-
-    .weather-details {
-        display: flex;
-        justify-content: space-around;
-        padding-top: 12px;
-        border-top: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .weather-item {
-        text-align: center;
-    }
-
-    .weather-label {
-        display: block;
-        font-size: 12px;
-        opacity: 0.9;
-        margin-bottom: 4px;
-    }
-
-    .weather-value {
-        display: block;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    /* 指标网格 */
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 24px;
-    }
-
-    .metric-item {
-        padding: 16px;
-        background: #f8f9fa;
-        border-radius: 6px;
-        border-left: 3px solid #556ee6;
-    }
-
-    .metric-label {
-        font-size: 12px;
-        color: #74788d;
-        margin-bottom: 4px;
-    }
-
-    .metric-value {
-        font-size: 20px;
-        font-weight: 600;
-        color: #495057;
-    }
-
-    .metric-unit {
-        font-size: 12px;
-        color: #adb5bd;
-        margin-left: 2px;
-    }
-
-    /* 趋势图 */
-    .trend-section {
-        margin-top: 24px;
-    }
-
-    .trend-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #74788d;
-        margin-bottom: 12px;
-    }
-
-    /* 加载动画 */
-    .typing-indicator {
-        display: none;
-        padding: 12px 16px;
-        background: #fff;
-        border: 1px solid #e3e6ef;
-        border-radius: 8px;
-        width: fit-content;
-    }
-
-    .typing-indicator.active {
-        display: block;
-    }
-
-    .typing-indicator span {
-        height: 8px;
-        width: 8px;
-        background: #556ee6;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 4px;
-        animation: bounce 1.4s infinite;
-    }
-
-    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
     @keyframes bounce {
         0%, 60%, 100% { transform: translateY(0); }
         30% { transform: translateY(-8px); }
     }
 
-    /* 响应式 */
-    @media (max-width: 1200px) {
-        .ai-main-layout {
-            grid-template-columns: 1fr;
-        }
-        .data-card {
-            height: auto;
-            min-height: 400px;
-        }
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-in;
     }
+
+    .typing-dot {
+        animation: bounce 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
 </style>
 
-<div class="container-fluid">
+<div class="container mx-auto px-4 py-5">
     <!-- 页面标题 -->
-    <div class="page-title-box">
-        <h4 class="page-title">💬 AI空气智聊助手</h4>
-        <p class="page-title-desc">基于实时数据的智能空气质量咨询服务</p>
+    <div class="mb-6 pb-5 border-b border-gray-200">
+        <h4 class="text-2xl font-semibold text-gray-700">💬 AI空气智聊助手</h4>
+        <p class="text-sm text-gray-500 mt-1">基于实时数据的智能空气质量咨询服务</p>
     </div>
 
     <!-- 主布局 -->
-    <div class="ai-main-layout">
+    <div class="max-w-5xl mx-auto">
+                <!-- 天气信息卡片 -->
+        <div class="bg-gradient-to-br from-cyan-400 to-blue-500 rounded-lg p-5 text-white shadow-md hidden" id="weather-card">
+            <div class="text-4xl text-center mb-3">🌤️</div>
+            <div class="text-center mb-4">
+                <div class="text-xl font-semibold mb-1" id="weather-main">--</div>
+                <div class="text-3xl font-bold" id="weather-temp">--℃</div>
+            </div>
+            <div class="flex justify-around pt-3 border-t border-white border-opacity-30">
+                <div class="text-center">
+                    <span class="block text-xs opacity-90 mb-1">城市</span>
+                    <span class="block text-base font-semibold" id="weather-city">--</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-xs opacity-90 mb-1">风力</span>
+                    <span class="block text-base font-semibold" id="weather-wind">--</span>
+                </div>
+                <div class="text-center">
+                    <span class="block text-xs opacity-90 mb-1">湿度</span>
+                    <span class="block text-base font-semibold" id="weather-humidity">--%</span>
+                </div>
+            </div>
+        </div>
         <!-- 聊天区域 -->
-        <div class="chat-card">
-            <div class="chat-header">
-                <h5 class="chat-title">智能对话</h5>
-                <select class="city-select" id="city-select">
+        <div class="bg-white rounded-lg shadow-md flex flex-col h-[600px] mb-6">
+            <!-- Chat Header -->
+            <div class="px-5 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h5 class="text-base font-semibold text-gray-700">智能对话</h5>
+                <select class="px-3 py-1.5 border border-gray-300 rounded text-sm text-gray-700 bg-white cursor-pointer focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" id="city-select">
                     {% for city in cities %}
                     <option value="{{ city }}">{{ city }}</option>
                     {% endfor %}
                 </select>
             </div>
 
-            <div class="messages-wrapper" id="messages">
-                <div class="message ai">
-                    <div class="message-bubble">
+            <!-- Messages Area -->
+            <div class="flex-1 overflow-y-auto p-5 bg-gray-50" id="messages">
+                <div class="flex mb-4 animate-fade-in">
+                    <div class="max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed whitespace-pre-line">
 👋 您好！我是空气质量智能助手。
 
 我可以帮您：
@@ -427,86 +91,29 @@
                 </div>
             </div>
 
-            <div class="quick-actions">
-                <button class="quick-btn" data-text="今天空气质量怎么样？">今日空气</button>
-                <button class="quick-btn" data-text="PM2.5浓度是多少？">PM2.5</button>
-                <button class="quick-btn" data-text="今天天气如何？">实时天气</button>
-                <button class="quick-btn" data-text="明天空气质量预测">明日预测</button>
-                <button class="quick-btn" data-text="健康防护建议">防护建议</button>
-                <button class="quick-btn" data-text="城市空气质量对比">城市对比</button>
+            <!-- Quick Actions -->
+            <div class="px-5 py-3 border-t border-gray-200 bg-white flex flex-wrap gap-2">
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="今天空气质量怎么样？">今日空气</button>
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="PM2.5浓度是多少？">PM2.5</button>
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="今天天气如何？">实时天气</button>
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="明天空气质量预测">明日预测</button>
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="健康防护建议">防护建议</button>
+                <button class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded text-xs text-gray-600 cursor-pointer hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-200 quick-btn" data-text="城市空气质量对比">城市对比</button>
             </div>
 
-            <div class="input-wrapper">
-                <input type="text" class="message-input" id="message-input" placeholder="输入您的问题..." autocomplete="off">
-                <button class="send-btn" id="send-btn">发送</button>
-            </div>
-        </div>
-
-        <!-- 数据面板 -->
-        <div class="data-card">
-            <h5 class="data-title">📊 实时数据监控</h5>
-
-            <div class="aqi-card">
-                {% if latest_aqi %}
-                <div class="aqi-value" id="aqi-value">{{ latest_aqi.aqi|floatformat:0 }}</div>
-                <div class="aqi-label" id="aqi-label">{{ latest_aqi.city }}</div>
-                <div class="aqi-time">{{ latest_aqi.updatetime|date:"Y-m-d H:i" }} 更新</div>
-                {% else %}
-                <div class="aqi-value">--</div>
-                <div class="aqi-label">暂无数据</div>
-                {% endif %}
-            </div>
-
-            <!-- 天气信息卡片 -->
-            <div class="weather-card" id="weather-card" style="display: none;">
-                <div class="weather-icon">🌤️</div>
-                <div class="weather-info">
-                    <div class="weather-main" id="weather-main">--</div>
-                    <div class="weather-temp" id="weather-temp">--℃</div>
-                </div>
-                <div class="weather-details">
-                    <div class="weather-item">
-                        <span class="weather-label">风力</span>
-                        <span class="weather-value" id="weather-wind">--</span>
-                    </div>
-                    <div class="weather-item">
-                        <span class="weather-label">湿度</span>
-                        <span class="weather-value" id="weather-humidity">--%</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="metrics-grid">
-                <div class="metric-item">
-                    <div class="metric-label">PM2.5</div>
-                    <div class="metric-value" id="metric-pm25">--<span class="metric-unit">μg/m³</span></div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">PM10</div>
-                    <div class="metric-value" id="metric-pm10">--<span class="metric-unit">μg/m³</span></div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">O₃</div>
-                    <div class="metric-value" id="metric-o3">--<span class="metric-unit">μg/m³</span></div>
-                </div>
-                <div class="metric-item">
-                    <div class="metric-label">CO</div>
-                    <div class="metric-value" id="metric-co">--<span class="metric-unit">mg/m³</span></div>
-                </div>
-            </div>
-
-            <div class="trend-section">
-                <div class="trend-title">近7日AQI趋势</div>
-                <canvas id="trend-chart" height="180"></canvas>
+            <!-- Input Area -->
+            <div class="px-5 py-4 border-t border-gray-200 bg-white flex gap-3">
+                <input type="text" class="flex-1 px-4 py-2 border border-gray-300 rounded text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200" id="message-input" placeholder="输入您的问题..." autocomplete="off">
+                <button class="px-6 py-2 bg-blue-500 text-white rounded text-sm font-medium cursor-pointer hover:bg-blue-600 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed" id="send-btn">发送</button>
             </div>
         </div>
+
+
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     let currentCity = null;
-    let trendChart = null;
 
     document.addEventListener('DOMContentLoaded', () => {
         const citySelect = document.getElementById('city-select');
@@ -518,11 +125,10 @@
             currentCity = '北京';
         }
 
-        initTrendChart();
-
         citySelect.addEventListener('change', (e) => {
             currentCity = e.target.value;
-            loadTrendData(currentCity);
+            // 更新天气显示城市
+            document.getElementById('weather-city').textContent = currentCity;
         });
 
         document.querySelectorAll('.quick-btn').forEach(btn => {
@@ -580,7 +186,7 @@
                 const data = await response.json();
                 addMessage(data.reply, 'ai');
 
-                if (data.current_aqi) {
+                if (data.weather) {
                     updateDataPanel(data);
                 }
             } else {
@@ -600,8 +206,15 @@
     function addMessage(text, type) {
         const messagesDiv = document.getElementById('messages');
         const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${type}`;
-        messageDiv.innerHTML = `<div class="message-bubble">${escapeHtml(text)}</div>`;
+        messageDiv.className = type === 'user'
+            ? 'flex justify-end mb-4 animate-fade-in'
+            : 'flex mb-4 animate-fade-in';
+
+        const bubbleClass = type === 'user'
+            ? 'max-w-3/4 px-4 py-3 rounded-lg bg-blue-500 text-white text-sm leading-relaxed whitespace-pre-line'
+            : 'max-w-3/4 px-4 py-3 rounded-lg bg-white border border-gray-200 text-gray-700 text-sm leading-relaxed whitespace-pre-line';
+
+        messageDiv.innerHTML = `<div class="${bubbleClass}">${escapeHtml(text)}</div>`;
         messagesDiv.appendChild(messageDiv);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -609,9 +222,9 @@
     function addTypingIndicator() {
         const messagesDiv = document.getElementById('messages');
         const indicator = document.createElement('div');
-        indicator.className = 'message ai';
-        indicator.innerHTML = '<div class="typing-indicator active"><span></span><span></span><span></span></div>';
+        indicator.className = 'flex mb-4';
         indicator.id = 'typing-indicator';
+        indicator.innerHTML = '<div class="px-4 py-3 rounded-lg bg-white border border-gray-200 w-fit flex gap-1"><span class="h-2 w-2 bg-blue-500 rounded-full typing-dot"></span><span class="h-2 w-2 bg-blue-500 rounded-full typing-dot"></span><span class="h-2 w-2 bg-blue-500 rounded-full typing-dot"></span></div>';
         messagesDiv.appendChild(indicator);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -622,77 +235,16 @@
     }
 
     function updateDataPanel(data) {
-        // 更新AQI
-        if (data.current_aqi) {
-            document.getElementById('aqi-value').textContent = Math.round(data.current_aqi);
-        }
-
         // 更新天气信息
         if (data.weather) {
             const weatherCard = document.getElementById('weather-card');
-            weatherCard.style.display = 'block';
+            weatherCard.classList.remove('hidden');
 
+            document.getElementById('weather-city').textContent = data.city || currentCity;
             document.getElementById('weather-main').textContent = data.weather.weather;
             document.getElementById('weather-temp').textContent = data.weather.temperature + '℃';
             document.getElementById('weather-wind').textContent = data.weather.winddirection + '风 ' + data.weather.windpower + '级';
             document.getElementById('weather-humidity').textContent = data.weather.humidity + '%';
-        }
-    }
-
-    function initTrendChart() {
-        const ctx = document.getElementById('trend-chart').getContext('2d');
-        trendChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'AQI',
-                    data: [],
-                    borderColor: '#556ee6',
-                    backgroundColor: 'rgba(85, 110, 230, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#556ee6'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,0.05)' }
-                    },
-                    x: {
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-
-        // 加载初始数据
-        if (currentCity) {
-            loadTrendData(currentCity);
-        }
-    }
-
-    async function loadTrendData(city) {
-        try {
-            const response = await fetch(`/myApp/get_trend_data/?city=${encodeURIComponent(city)}`);
-            if (response.ok) {
-                const data = await response.json();
-                if (trendChart) {
-                    trendChart.data.labels = data.labels;
-                    trendChart.data.datasets[0].data = data.values;
-                    trendChart.update();
-                }
-            }
-        } catch (error) {
-            console.error('加载趋势数据失败:', error);
         }
     }
 

@@ -158,9 +158,6 @@ def get_latest_aqi(request):
             "SELECT city, year, month, avg_month_AQI FROM aqi_result WHERE updatetime = (SELECT MAX(updatetime) FROM aqi_result) LIMIT 1;"
         )
         row = cursor.fetchone()
-
-    print('==== Latest AQI row:', row)  # 加这个！
-
     if row:
         data = {
             'city': row[0],
@@ -291,7 +288,7 @@ def AI(request):
 @require_http_methods(["GET"])
 def get_trend_data(request):
     """获取近7天AQI趋势数据"""
-    city = request.GET.get('city', '北京')
+    city = request.GET.get('city', '重庆')
 
     try:
         with connection.cursor() as cursor:
@@ -322,6 +319,7 @@ from django.views.decorators.csrf import csrf_exempt
 import random
 from datetime import datetime, timedelta
 import requests
+import os
 
 # 城市名称到高德城市编码的映射
 CITY_ADCODE_MAP = {
@@ -350,7 +348,7 @@ CITY_ADCODE_MAP = {
 def get_weather_data(city):
     """获取高德天气数据"""
     amap_key = '0b71692c73f6823579bb0fb7616c3181'
-    city_code = CITY_ADCODE_MAP.get(city, '110000')  # 默认北京
+    city_code = CITY_ADCODE_MAP.get(city, '420100')  # 默认北京
 
     try:
         # 获取实况天气
@@ -375,6 +373,37 @@ def get_weather_data(city):
             }
     except Exception as e:
         print(f"获取天气数据失败: {e}")
+
+    return None
+
+def call_deepseek_api(messages):
+    """调用DeepSeek API生成回复"""
+    api_key = os.environ.get('DEEPSEEK_API_KEY')
+    if not api_key:
+        return None
+
+    try:
+        response = requests.post(
+            'https://api.deepseek.com/v1/chat/completions',
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}'
+            },
+            json={
+                'model': 'deepseek-chat',
+                'messages': messages,
+                'temperature': 0.7,
+                'max_tokens': 800
+            },
+            timeout=10
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+            if 'choices' in data and len(data['choices']) > 0:
+                return data['choices'][0]['message']['content']
+    except Exception as e:
+        print(f"DeepSeek API调用失败: {e}")
 
     return None
 
@@ -435,16 +464,97 @@ def ai_chat(request):
 
 def generate_ai_reply(question, city, city_data, avg_aqi, trend_data, weather_info=None):
     """生成AI回复内容"""
-    q = question.lower()
-
     if not city_data:
-        return f"抱歉，暂无{city}的空气质量数据。请选择其他城市或稍后再试。"
+        return f"抱歉,暂无{city}的空气质量数据。请选择其他城市或稍后再试。"
 
-    # 空气质量等级判断 - 确保AQI是整数类型
+    # 确保AQI是整数类型
     try:
         aqi = int(city_data.AQI) if isinstance(city_data.AQI, str) else city_data.AQI
     except (ValueError, TypeError):
-        return f"抱歉，{city}的空气质量数据格式有误。"
+        return f"抱歉,{city}的空气质量数据格式有误。"
+
+    # 构建空气质量数据上下文
+    context_data = {
+        'city': city,
+        'aqi': aqi,
+        'pm25': city_data.PM,
+        'pm10': city_data.PM10,
+        'o3': city_data.O3,
+        'co': city_data.Co,
+        'avg_aqi': int(avg_aqi)
+    }
+
+    # 添加天气信息
+    if weather_info:
+        context_data['weather'] = weather_info['weather']
+        context_data['temperature'] = weather_info['temperature']
+        context_data['wind'] = f"{weather_info['winddirection']}风{weather_info['windpower']}级"
+        context_data['humidity'] = weather_info['humidity']
+
+    # 添加趋势数据
+    if trend_data and len(trend_data) > 0:
+        context_data['trend'] = [
+            {'date': str(row[0]), 'aqi': int(row[1]), 'pm25': int(row[2]), 'pm10': int(row[3])}
+            for row in trend_data[:7]
+        ]
+
+    # 构建系统提示词
+    system_prompt = f"""你是一个专业的空气质量智能助手,擅长分析和解读空气质量数据。
+
+当前掌握的{city}实时数据:
+• AQI指数: {aqi}
+• PM2.5浓度: {context_data['pm25']} μg/m³
+• PM10浓度: {context_data['pm10']} μg/m³
+• O₃浓度: {context_data['o3']} μg/m³
+• CO浓度: {context_data['co']} mg/m³
+• 城市平均AQI: {context_data['avg_aqi']}"""
+
+    if weather_info:
+        system_prompt += f"""
+• 天气状况: {weather_info['weather']}
+• 温度: {weather_info['temperature']}℃
+• 风力: {context_data['wind']}
+• 湿度: {context_data['humidity']}%"""
+
+    if trend_data and len(trend_data) >= 3:
+        recent_aqis = [row[1] for row in trend_data[:3]]
+        system_prompt += f"\n• 近3日AQI趋势: {' → '.join(map(str, recent_aqis))}"
+
+    system_prompt += """
+
+回答要求:
+1. 根据用户问题,结合上述实时数据给出准确、专业的回答
+2. 使用中文回答,语言简洁专业
+3. 回答要分段清晰,必要时使用项目天气符号
+4. 涉及健康建议时要给出具体、实用的防护措施
+5. 不要返回markdown格式内容
+6. 保持客观中立的语气
+
+AQI等级参考标准:
+• 0-50: 优(绿色) - 空气质量令人满意
+• 51-100: 良(黄色) - 空气质量可接受
+• 101-150: 轻度污染(橙色) - 敏感人群需减少户外活动
+• 151-200: 中度污染(红色) - 减少户外活动
+• 201-300: 重度污染(紫色) - 避免户外活动
+• >300: 严重污染(褐红色) - 停留室内"""
+
+    # 尝试调用DeepSeek API
+    messages = [
+        {'role': 'system', 'content': system_prompt},
+        {'role': 'user', 'content': question}
+    ]
+
+    ai_response = call_deepseek_api(messages)
+    if ai_response:
+        return ai_response
+
+    # API调用失败,使用规则匹配回退方案
+    return generate_rule_based_reply(question, city, city_data, aqi, avg_aqi, trend_data, weather_info)
+
+
+def generate_rule_based_reply(question, city, city_data, aqi, avg_aqi, trend_data, weather_info=None):
+    """基于规则的回复生成(作为回退方案)"""
+    q = question.lower()
 
     if aqi <= 50:
         level, color, advice = "优", "绿色", "空气质量令人满意，适宜各类人群进行户外活动"
